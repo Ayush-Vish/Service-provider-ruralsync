@@ -183,7 +183,7 @@ export default function Services() {
 
   useEffect(() => {
     handleGetServices();
-  }, [services]);
+  }, []);
 
   return (
     <Card className="mx-4 my-6 md:mx-8 lg:mx-16">
