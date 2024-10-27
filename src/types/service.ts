@@ -1,5 +1,6 @@
 export type Service = {
-      id: string;
+      id?: string;
+      _id?: string;
       name: string;
       description: string;
       basePrice: number;
@@ -21,4 +22,3 @@ export type Service = {
       };
       tags: string[];
     };
-    

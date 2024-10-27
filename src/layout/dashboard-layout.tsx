@@ -1,11 +1,10 @@
 
 import { useState } from 'react'
-import { Button } from "@/components/ui/button"
 import { SidebarProvider } from "@/components/ui/sidebar"
 
 import SidebarMenuComponent from '@/components/sidebar-menu'
 import OrganizationDetails from '@/components/org/orgDetails'
-import Services from '@/components/dashboard/service-component'
+import Services from '@/components/service/services'
 import Agents from '@/components/dashboard/agents'
 import Bookings from '@/components/dashboard/booking'
 

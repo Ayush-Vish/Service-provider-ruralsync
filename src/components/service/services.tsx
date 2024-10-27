@@ -1,31 +1,225 @@
-import { useState } from "react";
-import { Service } from "@/types/service"; // Adjust the import path as necessary
+"use client";
+
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import useLocation from "@/hooks/useLocation";
+import { useServiceStore } from "@/stores/services.store";
 import ServiceForm from "./service-form";
 import ServiceTable from "./service-table";
 
-export default function Services() {
-  const [services, setServices] = useState<Service[]>([]);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+type Service = {
+  id?: string;
+  _id?: string;
+  name: string;
+  description: string;
+  basePrice: number;
+  estimatedDuration: string;
+  category: string;
+  availability: { day: string; startTime: string; endTime: string }[];
+  additionalTasks: {
+    description: string;
+    extraPrice: number;
+    timeAdded?: string;
+  }[];
+  location: { coordinates: [number, number] };
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+  tags: string[];
+};
 
-  const handleAddService = (newService: Omit<Service, "id">) => {
-    setServices((prev) => [
+export default function Services() {
+  const services = useServiceStore((state) => state.services);
+  const [isAddingService, setIsAddingService] = useState(false);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const { location, error } = useLocation();
+
+  const [newService, setNewService] = useState<Service>({
+    name: "",
+    description: "",
+    basePrice: 0,
+    estimatedDuration: "",
+    category: "",
+    availability: [
+      { day: "Monday", startTime: "09:00", endTime: "17:00" },
+      { day: "Tuesday", startTime: "09:00", endTime: "17:00" },
+    ],
+    additionalTasks: [],
+    location: { coordinates: [0, 0] },
+    address: { street: "", city: "", state: "", zipCode: "", country: "" },
+    tags: [],
+  });
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setNewService((prev) => ({
       ...prev,
-      { id: Date.now().toString(), ...newService }, // Example for generating an ID
-    ]);
+      [name]: name === "basePrice" ? parseFloat(value) : value,
+    }));
   };
 
-  const handleDeleteService = (id: string) => {
-    setServices((prev) => prev.filter((service) => service.id !== id));
+  const handleAddAvailability = () => {
+    setNewService((prev) => ({
+      ...prev,
+      availability: [
+        ...prev.availability,
+        { day: "Monday", startTime: "09:00", endTime: "17:00" },
+      ],
+    }));
+  };
+
+  const handleAvailabilityChange = (
+    index: number,
+    field: string,
+    value: string
+  ) => {
+    const updatedAvailability = newService.availability.map((item, i) =>
+      i === index ? { ...item, [field]: value } : item
+    );
+    setNewService((prev) => ({ ...prev, availability: updatedAvailability }));
+  };
+
+  const handleDeleteAvailability = (index: number) => {
+    setNewService((prev) => ({
+      ...prev,
+      availability: prev.availability.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleAddExtraTask = () => {
+    setNewService((prev) => ({
+      ...prev,
+      additionalTasks: [
+        ...prev.additionalTasks,
+        { description: "", extraPrice: 0 },
+      ],
+    }));
+  };
+
+  const handleExtraTaskChange = (
+    index: number,
+    field: string,
+    value: string | number
+  ) => {
+    const updatedTasks = newService.additionalTasks.map((task, i) =>
+      i === index ? { ...task, [field]: value } : task
+    );
+    setNewService((prev) => ({ ...prev, additionalTasks: updatedTasks }));
+  };
+
+  const handleDeleteExtraTask = (index: number) => {
+    setNewService((prev) => ({
+      ...prev,
+      additionalTasks: prev.additionalTasks.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleAddTag = () => {
+    if (newService.tags.length < 5) {
+      // Limit to 5 tags
+      setNewService((prev) => ({
+        ...prev,
+        tags: [...prev.tags, ""],
+      }));
+    }
+  };
+
+  const handleTagChange = (index: number, value: string) => {
+    const updatedTags = newService.tags.map((tag, i) =>
+      i === index ? value : tag
+    );
+    setNewService((prev) => ({ ...prev, tags: updatedTags }));
+  };
+
+  const handleDeleteTag = (index: number) => {
+    setNewService((prev) => ({
+      ...prev,
+      tags: prev.tags.filter((_, i) => i !== index),
+    }));
+  };
+
+  const deleteService = useServiceStore((state) => state.deleteService);
+  const handleDeleteService = async (id: string) => {
+    await deleteService(id);
   };
 
   const handleViewServiceDetails = (service: Service) => {
-    // Logic for viewing service details can be implemented here
+    setSelectedService(service);
+    setIsDetailsOpen(true);
   };
 
+  const addService = useServiceStore((state) => state.addService);
+  const handleAddService = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await addService(newService);
+    setNewService({
+      name: "",
+      description: "",
+      basePrice: 0,
+      estimatedDuration: "",
+      category: "",
+      availability: [{ day: "Monday", startTime: "09:00", endTime: "17:00" }],
+      additionalTasks: [],
+      location: {
+        coordinates: [location?.latitude || 0, location?.longitude || 0],
+      },
+      address: { street: "", city: "", state: "", zipCode: "", country: "" },
+      tags: [],
+    });
+    setIsAddingService(false);
+  };
+
+  const getService = useServiceStore((state) => state.getServices);
+  const handleGetServices = async () => {
+    await getService();
+  };
+
+  useEffect(() => {
+    handleGetServices();
+  }, [services]);
+
   return (
-    <div>
-      <ServiceForm isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)} onAddService={handleAddService} />
-      <ServiceTable   services={services} onDeleteService={handleDeleteService} onViewServiceDetails={handleViewServiceDetails} />
-    </div>
+    <Card className="mx-4 my-6 md:mx-8 lg:mx-16">
+      <CardHeader>
+        <CardTitle>Services</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="mb-4">
+          <ServiceForm
+            newService={newService}
+            handleInputChange={handleInputChange}
+            handleAddService={handleAddService}
+            handleAddAvailability={handleAddAvailability}
+            handleAvailabilityChange={handleAvailabilityChange}
+            handleDeleteAvailability={handleDeleteAvailability}
+            handleAddExtraTask={handleAddExtraTask}
+            handleExtraTaskChange={handleExtraTaskChange}
+            handleDeleteExtraTask={handleDeleteExtraTask}
+            handleAddTag={handleAddTag}
+            handleTagChange={handleTagChange}
+            handleDeleteTag={handleDeleteTag}
+            isAddingService={isAddingService}
+            setIsAddingService={setIsAddingService}
+            error={error}
+          />
+        </div>
+
+        <ServiceTable
+          services={services}
+          handleViewServiceDetails={handleViewServiceDetails}
+          handleDeleteService={handleDeleteService}
+          isDetailsOpen={isDetailsOpen}
+          setIsDetailsOpen={setIsDetailsOpen}
+          selectedService={selectedService}
+        />
+      </CardContent>
+    </Card>
   );
 }
