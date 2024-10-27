@@ -7,7 +7,6 @@ import Register from "./pages/register";
 
 function App() {
   const initialise = useAuthStore((state) => state.initialise);
-  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const navigate = useNavigate();
 
   const checkAuth = async () => {
