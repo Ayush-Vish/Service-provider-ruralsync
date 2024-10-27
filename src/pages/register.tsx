@@ -5,16 +5,19 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Link } from 'react-router-dom'
+import { useAuthStore } from '@/stores/auth.store'
 
-export default function SignupPage() {
+export default function Register() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const handleSubmit = (e: React.FormEvent) => {
+  const register = useAuthStore(state=> state.register)
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     // TODO: Implement signup logic
-    console.log('Signup attempt with:', { name, email, password, confirmPassword })
+    console.log('Signup attempt with:', { name, email, password })
+    await register({name , email , password})
+    
   }
 
   return (
@@ -58,16 +61,7 @@ export default function SignupPage() {
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
-            </div>
+            
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full">Sign Up</Button>
