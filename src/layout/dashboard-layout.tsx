@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { SidebarProvider } from "@/components/ui/sidebar"
 
 import SidebarMenuComponent from '@/components/sidebar-menu'
-import OrganizationDetails from '@/components/dashboard/org-details'
+import OrganizationDetails from '@/components/org/orgDetails'
 import Services from '@/components/dashboard/service-component'
 import Agents from '@/components/dashboard/agents'
 import Bookings from '@/components/dashboard/booking'
