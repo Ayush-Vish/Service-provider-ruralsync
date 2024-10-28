@@ -1,35 +1,20 @@
-import { useState } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAgentStore } from "@/stores/agent.store";
 import AgentForm from "./agent-form";
 import AgentTable from "./agent-table";
 
 
-type Agent = {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  specialization: string;
-};
-
 export default function Agents() {
-  const [agents, setAgents] = useState<Agent[]>([
-    {
-      id: "1",
-      name: "John Doe",
-      email: "john.doe@example.com",
-      phone: "555-9876",
-      specialization: "Electrician",
-    },
-  ]);
+  const agents = useAgentStore((state) => state.agents);
+  const getAllAgents = useAgentStore((state) => state.getAllAgents);
+  const deleteAgent = useAgentStore((state) => state.deleteAgent);
 
-  const addAgent = (agent: Agent) => {
-    setAgents((prev) => [...prev, agent]);
-  };
-
-  const deleteAgent = (id: string) => {
-    setAgents((prev) => prev.filter((agent) => agent.id !== id));
-  };
+  useEffect(() => {
+    getAllAgents();
+  }, [getAllAgents]);
 
   return (
     <Card>
@@ -38,7 +23,7 @@ export default function Agents() {
       </CardHeader>
       <CardContent>
         <div className="mb-4">
-          <AgentForm addAgent={addAgent} />
+          <AgentForm  />
         </div>
         <AgentTable agents={agents} deleteAgent={deleteAgent} />
       </CardContent>

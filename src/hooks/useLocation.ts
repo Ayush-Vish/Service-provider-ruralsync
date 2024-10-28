@@ -11,7 +11,7 @@ type LocationError = {
 }
 
 export default function useLocation() {
-  const [location, setLocation] = useState<Position | null>(null)
+  const [location, setLocation] = useState<Position >()
   const [error, setError] = useState<LocationError | null>(null)
 
   useEffect(() => {
