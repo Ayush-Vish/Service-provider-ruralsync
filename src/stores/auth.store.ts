@@ -24,7 +24,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   initialise: async () => {
     try {
-      const res = await axiosInstance.get(AUTH_BASE_URL + "/user-detail", {
+      const res = await axiosInstance.get(AUTH_BASE_URL + "user-detail", {
         withCredentials: true, // Include credentials for cookies
       });
 
@@ -46,7 +46,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   // The login function should authenticate the user
   login: async (loginData) => {
     try {
-      const res = await axiosInstance.post(AUTH_BASE_URL + "/login", {
+      const res = await axiosInstance.post(AUTH_BASE_URL + "login", {
         ...loginData,
         role: SERVICE_PROVIDER,
       }, {
@@ -72,7 +72,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   // Function to handle user registration
   register: async (registerData) => {
     try {
-      const res = await axiosInstance.post(AUTH_BASE_URL + "/register", {
+      const res = await axiosInstance.post(AUTH_BASE_URL + "register", {
         ...registerData,
         role: SERVICE_PROVIDER,
       }, {
@@ -96,7 +96,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   // Function to log out
   logout: async () => {
     try {
-      await axiosInstance.post(AUTH_BASE_URL + "/logout", {}, {
+      await axiosInstance.post(AUTH_BASE_URL + "logout", {}, {
         withCredentials: true, // Include credentials for cookies
       });
       set({ isLoggedIn: false, user: null });
