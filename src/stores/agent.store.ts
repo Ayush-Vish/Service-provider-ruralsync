@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { create } from 'zustand';
 
 export interface Agent {
-  _id?: string;
+  _id: string;
   name: string;
   email: string;
   phoneNumber: string;
@@ -25,7 +25,7 @@ export interface Agent {
 interface AgentState {
   agents: Agent[];
   currAgent: Agent | null;
-  registerAgent: (agent: Agent) => Promise<void>;
+  registerAgent: (agent: Omit<Agent, "_id">   ) => Promise<void>;
   getAllAgents: () => Promise<void>;
   deleteAgent: (id: string) => Promise<void>;
   getAgent: (id: string) => Promise<void>;

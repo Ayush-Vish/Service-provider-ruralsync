@@ -1,7 +1,11 @@
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar"
 import { Building2, Users, Briefcase, Calendar } from 'lucide-react'
 
-export default function SidebarMenuComponent({ onSectionChange  }) {
+export default function SidebarMenuComponent({ onSectionChange  }
+  :{
+    onSectionChange: (section: string) => void;
+  }
+) {
   return (
     <Sidebar>
       <SidebarHeader>

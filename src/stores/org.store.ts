@@ -1,10 +1,11 @@
-import { BusinessHours } from '@/components/org/regeister-org';
-import { SHOPKEEPER_BASE_URL } from '@/constants';
-import axiosInstance from '@/lib/axios';
-import toast from 'react-hot-toast';
-import { create } from 'zustand';
 
-type OrganizationData = {
+import { BusinessHours } from "@/components/org/regeister-org";
+import { SHOPKEEPER_BASE_URL } from "@/constants";
+import axiosInstance from "@/lib/axios";
+import toast from "react-hot-toast";
+import { create } from "zustand";
+
+export type OrganizationData = {
   orgName: string;
   phone: string;
   address: string;
@@ -18,6 +19,10 @@ type OrganizationData = {
   };
   businessHours: BusinessHours[];
   isVerified?: boolean;
+  bookingsCount?: number;
+  revenue?: number;
+  agentCount?: number;
+  serviceCount?: number;
 };
 
 interface OrgState {

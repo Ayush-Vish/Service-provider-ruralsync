@@ -29,12 +29,13 @@ export default function AgentForm() {
   const registerAgent = useAgentStore((state) => state.registerAgent);
   const { location, error: locationError } = useLocation();
 
-  const [agent, setAgent] = useState<Agent>({
+  const [agent, setAgent] = useState<Omit<Agent,"_id">>({
     name: "",
     email: "",
     phoneNumber: "",
     password: "",
     address: "",
+    status:"FREE",
     location: { latitude: 0, longitude: 0 },
     services: [],
     serviceArea: "",
@@ -85,18 +86,10 @@ export default function AgentForm() {
             latitude: location?.latitude || 0,
             longitude: location?.longitude || 0,
           },
+          status:"FREE"
         });
 
-        setAgent({
-          name: "",
-          email: "",
-          phoneNumber: "",
-          password: "",
-          address: "",
-          location: { latitude: 0, longitude: 0 },
-          services: [],
-          serviceArea: "",
-        });
+
 
         setIsOpen(false);
       } catch (error) {

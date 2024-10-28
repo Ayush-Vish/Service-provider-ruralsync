@@ -1,42 +1,39 @@
-
-import { useState, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useOrgStore } from '@/stores/org.store';
-import RegistrationForm from './regeister-org';
-import EditOrganizationForm from './edit-orgform';
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, XAxis, YAxis } from 'recharts';
-import { Tooltip } from '../ui/tooltip';
+import { OrganizationData, useOrgStore } from "@/stores/org.store";
+import RegistrationForm from "./regeister-org";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { Tooltip } from "../ui/tooltip";
+import { useEffect } from "react";
 
 export default function OrganizationDetails() {
   const orgData = useOrgStore((state) => state.orgDetails);
   const getOrgDetails = useOrgStore((state) => state.getOrgDetails);
-  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     getOrgDetails();
   }, []);
-
-  const handleUpdate = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsEditing(false);
-  };
 
   return (
     <div>
       <Card>
         <CardHeader>
           <CardTitle>
-            {orgData?.isVerified ? "Organization Information" : "Register Organization"}
+            {orgData?.isVerified
+              ? "Organization Information"
+              : "Register Organization"}
           </CardTitle>
         </CardHeader>
         <CardContent>
           {orgData?.isVerified ? (
-            isEditing ? (
-              <EditOrganizationForm orgData={orgData} onSubmit={handleUpdate} />
-            ) : (
-              <OrganizationMetrics orgData={orgData} setIsEditing={setIsEditing} />
-            )
+            <OrganizationMetrics orgData={orgData} />
           ) : (
             <RegistrationForm />
           )}
@@ -46,13 +43,16 @@ export default function OrganizationDetails() {
   );
 }
 
-function OrganizationMetrics({ orgData, setIsEditing }) {
-  
+function OrganizationMetrics({
+  orgData,
+}: {
+  orgData: OrganizationData;
+}) {
   const metricsData = [
-    { name: 'Bookings', value: 150212312 },
-    { name: 'Revenue', value: 14324324000 },
-    { name: 'Agents', value: 15 },
-    { name: 'Services', value: 10 },
+    { name: "Bookings", value: orgData?.bookingsCount || 0 },
+    { name: "Revenue", value: orgData?.revenue || 0 },
+    { name: "Agents", value: orgData?.agentCount || 0 },
+    { name: "Services", value: orgData?.serviceCount || 0 },
   ];
 
   return (
@@ -68,7 +68,6 @@ function OrganizationMetrics({ orgData, setIsEditing }) {
           <Bar dataKey="value" fill="#8884d8" />
         </BarChart>
       </ResponsiveContainer>
-      <Button onClick={() => setIsEditing(true)}>Edit Details</Button>
     </div>
   );
 }
