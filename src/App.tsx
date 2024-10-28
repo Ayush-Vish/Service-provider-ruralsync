@@ -4,6 +4,7 @@ import { useAuthStore } from "./stores/auth.store";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import LoginPage from "./pages/login";
 import Register from "./pages/register";
+import CookieConsent from "./components/cookie-consent";
 
 function App() {
   const initialise = useAuthStore((state) => state.initialise);
@@ -24,6 +25,7 @@ function App() {
 
   return (
     <div className="w-full ">
+        <CookieConsent />
       <Routes>
         <Route path="/" element={<DashboardLayout />} />
         <Route path="/login" element={<LoginPage />} />
