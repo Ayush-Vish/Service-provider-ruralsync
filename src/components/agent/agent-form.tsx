@@ -11,7 +11,7 @@ import {
 import { PlusCircle } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useAgentStore } from "@/stores/agent.store";
+import { Agent, useAgentStore } from "@/stores/agent.store";
 import useLocation from "@/hooks/useLocation";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { MapPin } from "lucide-react";
@@ -29,14 +29,14 @@ export default function AgentForm() {
   const registerAgent = useAgentStore((state) => state.registerAgent);
   const { location, error: locationError } = useLocation();
 
-  const [agent, setAgent] = useState({
+  const [agent, setAgent] = useState<Agent>({
     name: "",
     email: "",
     phoneNumber: "",
     password: "",
     address: "",
     location: { latitude: 0, longitude: 0 },
-    services: [] as string[],
+    services: [],
     serviceArea: "",
   });
 
@@ -78,10 +78,13 @@ export default function AgentForm() {
           email: agent.email,
           phoneNumber: agent.phoneNumber,
           password: agent.password,
+          address: agent.address,
           services: agent.services,
           serviceArea: agent.serviceArea,
-          latitude: location?.latitude ,
-          longitude: location?.longitude ,
+          location: {
+            latitude: location?.latitude || 0,
+            longitude: location?.longitude || 0,
+          },
         });
 
         setAgent({

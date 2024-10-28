@@ -1,21 +1,22 @@
-import { AUTH_BASE_URL, SHOPKEEPER_BASE_URL } from "@/constants";
-import axiosInstance from "@/lib/axios";
-import toast from "react-hot-toast";
-import { create } from "zustand";
+import { AUTH_BASE_URL, SHOPKEEPER_BASE_URL } from '@/constants';
+import axiosInstance from '@/lib/axios';
+import toast from 'react-hot-toast';
+import { create } from 'zustand';
 
 export interface Agent {
   _id?: string;
   name: string;
   email: string;
   phoneNumber: string;
+  password: string;
+  address: string;
+  status : "BUSY" | "FREE"  | "OFFLINE"
+  location: {
+    latitude: number;
+    longitude: number;
+  };
   services: string[];
-  password:string;
   serviceArea: string;
-  serviceProviderId?: string;
-  status?: string[];
-  latitude?:number;
-  longitude?:number;
-  rating?: number;
   feedback?: string[];
   currentBookings?: string[];
   completedBookings?: string[];
@@ -23,17 +24,17 @@ export interface Agent {
 
 interface AgentState {
   agents: Agent[];
-  currAgent:Agent | null;
+  currAgent: Agent | null;
   registerAgent: (agent: Agent) => Promise<void>;
   getAllAgents: () => Promise<void>;
   deleteAgent: (id: string) => Promise<void>;
-  getAgent:(id :string) => Promise<void>;
+  getAgent: (id: string) => Promise<void>;
 }
 
 export const useAgentStore = create<AgentState>((set) => ({
   agents: [],
-  currAgent:null,
-  
+  currAgent: null,
+
   registerAgent: async (agentInfo) => {
     try {
       const res = await axiosInstance.post(AUTH_BASE_URL + "agent-register", agentInfo);
@@ -44,7 +45,7 @@ export const useAgentStore = create<AgentState>((set) => ({
       const data = res.data;
       set((state) => ({ agents: [...state.agents, data] }));
       toast.success("Agent added successfully");
-    } catch (error: unknown) {
+    } catch (error) {
       toast.error("Failed to add agent: " );
       console.error(error);
     }
@@ -53,13 +54,7 @@ export const useAgentStore = create<AgentState>((set) => ({
   getAllAgents: async () => {
     try {
       const res = await axiosInstance.get(SHOPKEEPER_BASE_URL + "all-agents");
-      if (res.status !== 200) {
-        toast.error("Failed to fetch agents");
-        return;
-      }
-      const data = res.data;
-      console.log(data)
-      set({ agents: data.data });
+      set({ agents: res.data.data });
       toast.success("Agents fetched successfully");
     } catch (error) {
       toast.error("Failed to fetch agents");
@@ -83,16 +78,14 @@ export const useAgentStore = create<AgentState>((set) => ({
       console.error(error);
     }
   },
-  getAgent : async(id ) => {
-      try {
-        const res = await axiosInstance.get(SHOPKEEPER_BASE_URL + 'agent/' + id);
-        const data = await res.data.agent;
 
-        console.log(data);
-        set((state)=> state.currAgent = data)
-
-      } catch (error) {
-        console.log(error)
-      }
-  }
+  getAgent: async (id) => {
+    try {
+      const res = await axiosInstance.get(SHOPKEEPER_BASE_URL + `agent/${id}`);
+      set({ currAgent: res.data.agent });
+    } catch (error) {
+      toast.error("Failed to fetch agent details");
+      console.error(error);
+    }
+  },
 }));

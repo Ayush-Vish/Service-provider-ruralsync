@@ -1,56 +1,53 @@
-'use client'
+import { useEffect, useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { UserPlus, Eye, Edit, Trash2 } from 'lucide-react';
+import { Booking, useBookingStore } from '@/stores/booking.store';
+import AgentAssignmentModal from './assign-agent';
+import BookingDetailsModal from './booking-detail';
 
-import { useEffect, useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { UserPlus, Eye, Edit, Trash2 } from 'lucide-react'
-import { useBookingStore } from '@/stores/booking.store'
-import AgentAssignmentModal from './assign-agent'
-
-type Booking = {
-  id: string
-  customerName: string
-  service: string
-  date: string
-  status: 'Pending'| 'Confirmed'| 'In Progress'| 'Completed'| 'Cancelled'
-}
 
 export default function Bookings() {
-  const bookings  = useBookingStore(state => state.bookings);
-  const getBookings = useBookingStore((state) => state.getAllBookings);
-  const [filter, setFilter] = useState<Booking['status'] | 'all'>('all')
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const bookings = useBookingStore(state => state.bookings);
+  const getBookings = useBookingStore(state => state.getAllBookings);
+  const assignBooking = useBookingStore(state => state.assignBooking);
+  const [filter, setFilter] = useState<Booking['status'] | 'all'>('all');
+  const [isAgentModalOpen, setIsAgentModalOpen] = useState(false);
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
-  
-  const filteredBookings = filter === 'all' ? bookings : bookings.filter(booking => booking.status === filter)
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+
+  const filteredBookings = filter === 'all' ? bookings : bookings.filter(booking => booking.status === filter);
 
   const handleDeleteBooking = (id: string) => {
     // Add delete logic here
-  }
+  };
 
   const handleAssignAgent = (id: string) => {
     setSelectedBookingId(id);
-    setIsModalOpen(true);
-  }
+    setIsAgentModalOpen(true);
+  };
 
   const handleViewDetails = (id: string) => {
-    console.log(`Viewing details of booking ${id}`)
-  }
+    setSelectedBookingId(id);
+    setIsDetailsModalOpen(true);
+  };
 
   const assignAgent = (bookingId: string, agentId: string) => {
-    console.log(`Assigning agent ${agentId} to booking ${bookingId}`);
-    // Add logic to assign agent to booking here
-  }
+    assignBooking({
+      bookingId,
+      agentId,
+    });
+  };
 
-  async function handleGetBookings () {
+  async function handleGetBookings() {
     getBookings();
   }
 
   useEffect(() => {
     handleGetBookings();
-  }, [])
+  }, []);
 
   return (
     <Card>
@@ -113,13 +110,20 @@ export default function Bookings() {
         </Table>
       </CardContent>
       {selectedBookingId && (
-        <AgentAssignmentModal
-          bookingId={selectedBookingId}
-          isOpen={isModalOpen}
-          setIsOpen={setIsModalOpen}
-          assignAgent={assignAgent}
-        />
+        <>
+          <AgentAssignmentModal
+            bookingId={selectedBookingId}
+            isOpen={isAgentModalOpen}
+            setIsOpen={setIsAgentModalOpen}
+            assignAgent={assignAgent}
+          />
+          <BookingDetailsModal
+            bookingId={selectedBookingId}
+            isOpen={isDetailsModalOpen}
+            setIsOpen={setIsDetailsModalOpen}
+          />
+        </>
       )}
     </Card>
-  )
+  );
 }

@@ -17,7 +17,7 @@ type AgentStatus ="BUSY" | "FREE" | "OFFLINE"
 export default function AgentAssignmentModal({ bookingId, isOpen, setIsOpen, assignAgent }: AgentAssignmentModalProps) {
   const agents = useAgentStore((state) => state.agents);
   const getAllAgents = useAgentStore((state) => state.getAllAgents);
-  const [selectedAgent, setSelectedAgent] = useState<string | undefined>(null);
+  const [selectedAgent, setSelectedAgent] = useState<string >();
 
   useEffect(() => {
     if (isOpen) {

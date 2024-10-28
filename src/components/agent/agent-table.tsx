@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Edit, Trash2, Eye } from "lucide-react";
 import { Agent } from "@/stores/agent.store";
-import AgentDetailsDialog from "./agent-detais";
+import AgentDetailsDialog from "./agent-detais"; // Ensure the correct path is used
 
 interface AgentTableProps {
   agents: Agent[];
@@ -18,7 +18,7 @@ export default function AgentTable({ agents, deleteAgent }: AgentTableProps) {
     setSelectedAgentId(id);
     setIsDetailsOpen(true);
   };
-
+  
   return (
     <>
       <Table>
@@ -28,16 +28,23 @@ export default function AgentTable({ agents, deleteAgent }: AgentTableProps) {
             <TableHead>Email</TableHead>
             <TableHead>Phone</TableHead>
             <TableHead>Specialization</TableHead>
+            <TableHead>Status</TableHead> {/* New column for status */}
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {agents.map((agent) => (
+          {agents && agents.length > 0 && agents.map((agent) => (
             <TableRow key={agent._id}>
               <TableCell>{agent.name}</TableCell>
               <TableCell>{agent.email}</TableCell>
               <TableCell>{agent.phoneNumber}</TableCell>
-              <TableCell>{agent.services   ? agent.services.join(", ") : "NA"}</TableCell>
+              <TableCell>{agent.services ? agent.services.join(", ") : "NA"}</TableCell>
+              <TableCell>
+                
+                <span className={getStatusClass(agent.status&& agent.status)}>
+                  {agent.status}
+                </span>
+              </TableCell>
               <TableCell>
                 <Button variant="outline" className="mr-2">
                   <Edit size={16} />
@@ -63,3 +70,17 @@ export default function AgentTable({ agents, deleteAgent }: AgentTableProps) {
     </>
   );
 }
+
+// Helper function to get status class
+const getStatusClass = (status: string) => {
+  switch (status) {
+    case "available":
+      return "text-green-500"; 
+    case "busy":
+      return "text-yellow-500"; 
+    case "offline":
+      return "text-red-500"; 
+    default:
+      return "text-gray-500"; 
+  }
+};

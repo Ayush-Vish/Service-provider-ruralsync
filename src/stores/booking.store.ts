@@ -19,13 +19,15 @@ interface Service {
   description: string;
 }
 
-interface Booking {
+interface Client {
   _id: string;
-  client:  {
-    _id : string;
-    name:string;
-    email:string;
-  }
+  name: string;
+  email: string;
+}
+
+export interface Booking {
+  _id: string;
+  client: Client;
   serviceProvider: string;
   service: Service;
   bookingDate: string;
@@ -38,9 +40,15 @@ interface Booking {
   updatedAt: string;
 }
 
+type BookingData = {
+  bookingId:string;
+  agentId:string;
+}
 interface BookingState {
   bookings: Booking[];
   getAllBookings: () => Promise<void>;
+  assignBooking: (bookingdata: BookingData) => Promise<void>;
+  getBookingDetails: (bookingId: string) => Promise<Booking>;
 }
 
 export const useBookingStore = create<BookingState>((set) => ({
@@ -56,12 +64,24 @@ export const useBookingStore = create<BookingState>((set) => ({
       toast.error("Failed to fetch bookings");
     }
   },
-  assignBooking:async(data ) => {
-      try {
-        const res= await axiosInstance.post(SHOPKEEPER_BASE_URL + )
-      } catch (error) {
-        console.error(error)
-        toast.error("Error in assigning")
-      }
+  assignBooking: async (bookingdata) => {
+    try {
+       await axiosInstance.post(SHOPKEEPER_BASE_URL + "assign-booking", bookingdata);
+      // const data = await res.data;
+      toast.success("Booking assigned successfully");
+    } catch (error) {
+      console.error(error);
+      toast.error("Error in assigning");
+    }
+  },
+  getBookingDetails: async (bookingId) => {
+    try {
+      const res = await axiosInstance.get(SHOPKEEPER_BASE_URL + `booking/${bookingId}`);
+      return res.data.booking;
+    } catch (error) {
+      console.error("Failed to fetch booking details:", error);
+      toast.error("Failed to fetch booking details");
+      throw error;
+    }
   },
 }));

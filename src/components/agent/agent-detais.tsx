@@ -30,7 +30,7 @@ export default function AgentDetailsDialog({ agentId, isOpen, setIsOpen }: Agent
           <p><strong>Phone:</strong> {currAgent.phoneNumber}</p>
           <p><strong>Services:</strong> {currAgent.services?.join(", ") || "N/A"}</p>
           <p><strong>Service Area:</strong> {currAgent.serviceArea}</p>
-          <p><strong>Rating:</strong> {currAgent.rating}</p>
+          {/* <p><strong>Rating:</strong> {currAgent.rating}</p> */}
           <p><strong>Feedback:</strong> {currAgent.feedback?.join(", ") || "N/A"}</p>
           <p><strong>Current Bookings:</strong> {currAgent.currentBookings?.join(", ") || "N/A"}</p>
           <p><strong>Completed Bookings:</strong> {currAgent.completedBookings?.join(", ") || "N/A"}</p>
