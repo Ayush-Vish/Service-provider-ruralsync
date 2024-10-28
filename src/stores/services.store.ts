@@ -49,7 +49,8 @@ export const useServiceStore = create<ServiceState>((set) => ({
       set((state) => ({ services: [...state.services, data] }));
       toast.success("Service added successfully");
     } catch (error) {
-      toast.error("Failed to add service " + error.message);
+      toast.error("Failed to add service " );
+      console.log(error)
     }
   },
   getServices: async () => {
@@ -60,6 +61,7 @@ export const useServiceStore = create<ServiceState>((set) => ({
 
     } catch (error) {
       set({ services: [] });
+      console.log(error)
       toast.error("Failed to fetch services");
     }
   }, 
@@ -74,7 +76,8 @@ export const useServiceStore = create<ServiceState>((set) => ({
       set((state) => ({ services: state.services.filter((service) => service.id !== id) }));
       toast.success("Service deleted successfully");
     } catch (error) {
-      toast.error("Failed to delete service " + error.message);
+      console.log(error)
+      toast.error("Failed to delete service " );
     }
 
   }

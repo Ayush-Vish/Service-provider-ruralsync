@@ -1,19 +1,23 @@
+import { BusinessHours } from '@/components/org/regeister-org';
 import { SHOPKEEPER_BASE_URL } from '@/constants';
 import axiosInstance from '@/lib/axios';
 import toast from 'react-hot-toast';
 import { create } from 'zustand';
 
 type OrganizationData = {
-  orgName?: string;
-  phone?: string;
+  orgName: string;
+  phone: string;
   address: string;
   description: string;
   website: string;
   logo: string;
-  facebook: string;
-  twitter: string;
-  instagram: string;
-  isVerified: boolean;
+  socialMedia: {
+    facebook: string;
+    twitter: string;
+    instagram: string;
+  };
+  businessHours: BusinessHours[];
+  isVerified?: boolean;
 };
 
 interface OrgState {

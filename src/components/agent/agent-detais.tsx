@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Agent, useAgentStore } from "@/stores/agent.store";
+import {  useAgentStore } from "@/stores/agent.store";
 
 type AgentDetailsDialogProps = {
   agentId: string;

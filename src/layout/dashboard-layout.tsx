@@ -6,7 +6,7 @@ import SidebarMenuComponent from '@/components/sidebar-menu'
 import OrganizationDetails from '@/components/org/orgDetails'
 import Services from '@/components/service/services'
 import Agents from '@/components/agent/agent'
-import Bookings from '@/components/dashboard/booking'
+import Bookings from '@/components/booking/booking'
 
 export default function DashboardLayout() {
   const [activeSection, setActiveSection] = useState('org-details')

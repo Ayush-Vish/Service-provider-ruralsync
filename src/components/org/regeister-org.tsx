@@ -10,7 +10,7 @@ import useLocation from "../../hooks/useLocation"
 import { useOrgStore } from "@/stores/org.store"
 import toast from 'react-hot-toast'
 
-type BusinessHours = {
+export type BusinessHours = {
   day: string
   open: string
   close: string
@@ -236,12 +236,12 @@ export default function RegistrationForm() {
             <div className="grid grid-cols-2 gap-4">
               <InputField 
                 label="Latitude" 
-                value={location?.latitude || ''} 
+                value={location?.latitude?.toString() || ''} 
                 readOnly 
               />
               <InputField 
                 label="Longitude" 
-                value={location?.longitude || ''} 
+                value={location?.longitude?.toString() || ''} 
                 readOnly 
               />
             </div>
@@ -257,7 +257,16 @@ export default function RegistrationForm() {
   )
 }
 
-function InputField({ label, ...props }) {
+type InputFieldProps = {
+  label: string;
+  name?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  required?: boolean;
+  readOnly?: boolean;
+};
+
+function InputField({ label, ...props }: InputFieldProps) {
   return (
     <div className="space-y-2">
       <Label>{label}</Label>
@@ -266,7 +275,15 @@ function InputField({ label, ...props }) {
   )
 }
 
-function TextareaField({ label, ...props }) {
+type TextareaFieldProps = {
+  label: string;
+  name?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  required?: boolean;
+};
+
+function TextareaField({ label, ...props }: TextareaFieldProps) {
   return (
     <div className="space-y-2">
       <Label>{label}</Label>

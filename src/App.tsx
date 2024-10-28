@@ -13,6 +13,8 @@ function App() {
     const success = await initialise(); // Wait for the initialise function to complete
     if (!success) {
       navigate("/login");
+      return ;
+      
     }
   };
   useEffect(() => {

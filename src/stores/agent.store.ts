@@ -44,8 +44,8 @@ export const useAgentStore = create<AgentState>((set) => ({
       const data = res.data;
       set((state) => ({ agents: [...state.agents, data] }));
       toast.success("Agent added successfully");
-    } catch (error) {
-      toast.error("Failed to add agent: " + error.message);
+    } catch (error: unknown) {
+      toast.error("Failed to add agent: " );
       console.error(error);
     }
   },
@@ -79,7 +79,7 @@ export const useAgentStore = create<AgentState>((set) => ({
       }));
       toast.success("Agent deleted successfully");
     } catch (error) {
-      toast.error("Failed to delete agent: " + error.message);
+      toast.error("Failed to delete agent: " );
       console.error(error);
     }
   },
