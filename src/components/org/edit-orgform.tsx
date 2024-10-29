@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ChangeEvent, FormEvent } from "react";
 
 interface OrgData {
-  orgName: string;
+  name: string;
   phone: string;
   description: string;
 }
@@ -31,7 +31,7 @@ export default function EditOrganizationForm({
           <Input
             id="orgName"
             name="orgName"
-            value={orgData.orgName}
+            value={orgData.name}
             onChange={handleInputChange}
           />
         </div>
