@@ -3,9 +3,7 @@ import axiosInstance from '@/lib/axios';
 import toast from 'react-hot-toast';
 import { create } from 'zustand';
 
-type Service = {
-  id?: string;
-  _id?: string;
+export type ServiceFormData = {
   name: string;
   description: string;
   basePrice: number;
@@ -25,12 +23,38 @@ type Service = {
     zipCode: string;
     country: string;
   };
+  images:File[];
+  tags: string[];
+}
+export type Service = {
+  id: string;
+  _id: string;
+  name: string;
+  description: string;
+  basePrice: number;
+  estimatedDuration: string;
+  category: string;
+  images: string[];
+  availability: { day: string; startTime: string; endTime: string }[];
+  additionalTasks: {
+    description: string;
+    extraPrice: number;
+    timeAdded?: string;
+  }[];
+  location: { coordinates: [number, number] };
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
   tags: string[];
 };
 
 interface ServiceState {
   services: Service[];
-  addService: (service: Service) => void;
+  addService: (service: FormData) => void;
   getServices: () => void;
   deleteService: (id: string) => void;
 }

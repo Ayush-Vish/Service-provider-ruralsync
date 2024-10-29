@@ -3,43 +3,20 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import useLocation from "@/hooks/useLocation";
-import { useServiceStore } from "@/stores/services.store";
+import { Service, ServiceFormData, useServiceStore } from "@/stores/services.store";
 import ServiceForm from "./service-form";
 import ServiceTable from "./service-table";
 
-type Service = {
-  id?: string;
-  _id?: string;
-  name: string;
-  description: string;
-  basePrice: number;
-  estimatedDuration: string;
-  category: string;
-  availability: { day: string; startTime: string; endTime: string }[];
-  additionalTasks: {
-    description: string;
-    extraPrice: number;
-    timeAdded?: string;
-  }[];
-  location: { coordinates: [number, number] };
-  address: {
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-  };
-  tags: string[];
-};
 
 export default function Services() {
   const services = useServiceStore((state) => state.services);
   const [isAddingService, setIsAddingService] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const { location, error } = useLocation();
+  const {  error } = useLocation();
+  const [imageFiles, setImageFiles] = useState<File[]>([]); // New state for images
 
-  const [newService, setNewService] = useState<Service>({
+  const [newService, setNewService] = useState<ServiceFormData>({
     name: "",
     description: "",
     basePrice: 0,
@@ -53,6 +30,7 @@ export default function Services() {
     location: { coordinates: [0, 0] },
     address: { street: "", city: "", state: "", zipCode: "", country: "" },
     tags: [],
+    images:[]
   });
 
   const handleInputChange = (
@@ -158,21 +136,37 @@ export default function Services() {
   const addService = useServiceStore((state) => state.addService);
   const handleAddService = async (e: React.FormEvent) => {
     e.preventDefault();
-    await addService(newService);
-    setNewService({
-      name: "",
-      description: "",
-      basePrice: 0,
-      estimatedDuration: "",
-      category: "",
-      availability: [{ day: "Monday", startTime: "09:00", endTime: "17:00" }],
-      additionalTasks: [],
-      location: {
-        coordinates: [location?.latitude || 0, location?.longitude || 0],
-      },
-      address: { street: "", city: "", state: "", zipCode: "", country: "" },
-      tags: [],
+    const formdata = new FormData();
+    formdata.append("name" , newService.name);
+    formdata.append("description" , newService.description);
+    formdata.append("basePrice" , newService.basePrice.toString());
+    formdata.append("estimatedDuration" , newService.estimatedDuration);
+    formdata.append("category" , newService.category);
+    formdata.append("availability" , JSON.stringify(newService.availability));
+    formdata.append("additionalTasks" , JSON.stringify(newService.additionalTasks));
+    formdata.append("location" , JSON.stringify(newService.location));
+    formdata.append("address" , JSON.stringify(newService.address));
+    formdata.append("tags" , JSON.stringify(newService.tags));
+    imageFiles.forEach((file) => {
+      formdata.append("images", file); // Key 'images' allows multiple files
     });
+
+    await addService(formdata);
+    // setNewService({
+    //   name: "",
+    //   description: "",
+    //   basePrice: 0,
+    //   estimatedDuration: "",
+    //   category: "",
+    //   availability: [{ day: "Monday", startTime: "09:00", endTime: "17:00" }],
+    //   additionalTasks: [],
+    //   location: {
+    //     coordinates: [location?.latitude || 0, location?.longitude || 0],
+    //   },
+    //   address: { street: "", city: "", state: "", zipCode: "", country: "" },
+    //   tags: [],
+    //   images:[]
+    // });
     setIsAddingService(false);
   };
 
@@ -208,6 +202,8 @@ export default function Services() {
             isAddingService={isAddingService}
             setIsAddingService={setIsAddingService}
             error={error}
+            imageFiles={imageFiles} // Pass down image files
+            setImageFiles={setImageFiles} //
           />
         </div>
 

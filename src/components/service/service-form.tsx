@@ -3,33 +3,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Trash2, PlusCircle } from "lucide-react";
+import ImageUpload from "../uploadImage";
+import {  ServiceFormData } from "@/stores/services.store";
 
-type Service = {
-  id?: string;
-  name: string;
-  description: string;
-  basePrice: number;
-  estimatedDuration: string;
-  category: string;
-  availability: { day: string; startTime: string; endTime: string }[];
-  additionalTasks: {
-    description: string;
-    extraPrice: number;
-    timeAdded?: string;
-  }[];
-  location: { coordinates: [number, number] };
-  address: {
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-  };
-  tags: string[];
-};
 
 type ServiceFormProps = {
-  newService: Service;
+  newService: ServiceFormData;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleAddService: (e: React.FormEvent) => void;
   handleAddAvailability: () => void;
@@ -44,6 +23,8 @@ type ServiceFormProps = {
   isAddingService: boolean;
   setIsAddingService: (isAdding: boolean) => void;
   error: { message: string } | null;
+  imageFiles: File[];
+  setImageFiles: (files: File[]) => void;
 };
 
 export default function ServiceForm({
@@ -62,7 +43,12 @@ export default function ServiceForm({
   isAddingService,
   setIsAddingService,
   error,
+  imageFiles, 
+  setImageFiles
+
 }: ServiceFormProps) {
+
+
   return (
     <Dialog open={isAddingService} onOpenChange={setIsAddingService}>
       <DialogTrigger asChild>
@@ -222,6 +208,13 @@ export default function ServiceForm({
               Add Tag
             </Button>
           </div>
+          <ImageUpload
+            label="Upload Images"
+            multiple={true}
+            onChange={setImageFiles} // Set the uploaded files
+            value={imageFiles} // Use the state to manage files
+          />
+
           {error && <p className="text-red-500">{error.message}</p>}
           <Button type="submit" className="w-full">
             Save Service
