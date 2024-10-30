@@ -7,6 +7,7 @@ import OrganizationDetails from '@/components/org/orgDetails'
 import Services from '@/components/service/services'
 import Agents from '@/components/agent/agent'
 import Bookings from '@/components/booking/booking'
+import AuditLogsPage from '@/components/auditlog/audit-log'
 
 export default function DashboardLayout() {
   const [activeSection, setActiveSection] = useState('org-details')
@@ -29,6 +30,7 @@ export default function DashboardLayout() {
           {activeSection === 'services' && <Services />}
           {activeSection === 'agents' && <Agents />}
           {activeSection === 'bookings' && <Bookings />}
+          {activeSection === 'audit-logs' && <AuditLogsPage />}
         </main>
       </div>
     </SidebarProvider>

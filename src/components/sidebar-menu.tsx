@@ -37,6 +37,13 @@ export default function SidebarMenuComponent({ onSectionChange  }
               Bookings
             </SidebarMenuButton>
           </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={() => onSectionChange('audit-logs')}>
+              <Calendar className="mr-2" />
+              Audit Logs
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
         </SidebarMenu>
       </SidebarContent>
     </Sidebar>
