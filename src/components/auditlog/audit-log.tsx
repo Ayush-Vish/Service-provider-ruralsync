@@ -1,8 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect } from "react"
-import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { useState, useEffect } from "react";
+import {
+  ChevronDown,
+  ChevronUp,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -10,46 +15,49 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import useAuditStore from "@/stores/audit.store"
+} from "@/components/ui/select";
+import useAuditStore from "@/stores/audit.store";
+import { Card } from "@/components/ui/card"; // Adjusted import path for Card component
 
 interface IAuditLog {
-      _id: string;
-      userId: string;
-      role: 'CLIENT' | 'AGENT';  // Specifies that the role is either 'CLIENT' or 'AGENT'
-      action: string;
-      targetId?: string;         // Optional target identifier
-      timestamp: Date;
-      metadata?: any;            // Optional metadata for additional information
-      serviceProviderId: string;
-      username: string;
-    }
-type SortKey = keyof IAuditLog
+  _id: string;
+  userId: string;
+  role: "CLIENT" | "AGENT";
+  action: string;
+  targetId?: string;
+  timestamp: Date;
+  metadata?: any;
+  serviceProviderId: string;
+  username: string;
+}
+type SortKey = keyof IAuditLog;
 
 export default function AuditLogPage() {
-      const logs = useAuditStore((state) => state.logs)
-      const loading = useAuditStore((state) => state.loading)
-      const fetchAuditLogs = useAuditStore((state) => state.fetchAuditLogs)
-      
-      const [sortKey, setSortKey] = useState("timestamp")
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc")
-  const [filterValue, setFilterValue] = useState("")
-  const [roleFilter, setRoleFilter] = useState<"ALL" | "CLIENT" | "AGENT">("ALL")
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 10
+  const logs = useAuditStore((state) => state.logs);
+  const loading = useAuditStore((state) => state.loading);
+  const fetchAuditLogs = useAuditStore((state) => state.fetchAuditLogs);
+
+  const [sortKey, setSortKey] = useState<SortKey>("timestamp");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const [filterValue, setFilterValue] = useState("");
+  const [roleFilter, setRoleFilter] = useState<"ALL" | "CLIENT" | "AGENT">(
+    "ALL"
+  );
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const [visibleColumns, setVisibleColumns] = useState({
     username: true,
@@ -59,70 +67,67 @@ export default function AuditLogPage() {
     timestamp: true,
     serviceProviderId: true,
     metadata: true,
+  });
 
-  })
-
-  // Fetch logs on component mount
   useEffect(() => {
-    fetchAuditLogs()
-  }, [fetchAuditLogs])
+    fetchAuditLogs();
+  }, [fetchAuditLogs]);
 
-  // Sort logs when sortKey or sortOrder changes
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
-      setSortKey(key)
-      setSortOrder("asc")
+      setSortKey(key);
+      setSortOrder("asc");
     }
-  }
+  };
 
-  // Filter logs based on input value
   const handleFilter = (value: string) => {
-    setFilterValue(value)
-    setCurrentPage(1)
-  }
+    setFilterValue(value);
+    setCurrentPage(1);
+  };
 
-  // Filter logs by role
   const handleRoleFilter = (value: "ALL" | "CLIENT" | "AGENT") => {
-    setRoleFilter(value)
-    setCurrentPage(1)
-  }
+    setRoleFilter(value);
+    setCurrentPage(1);
+  };
 
   const toggleColumn = (column: keyof typeof visibleColumns) => {
-    setVisibleColumns((prev) => ({ ...prev, [column]: !prev[column] }))
-  }
+    setVisibleColumns((prev) => ({ ...prev, [column]: !prev[column] }));
+  };
 
-  // Apply sorting and filtering
   const filteredLogs = logs
     .filter((log) => {
       const matchFilter = filterValue
         ? log.username.toLowerCase().includes(filterValue.toLowerCase()) ||
           log.action.toLowerCase().includes(filterValue.toLowerCase()) ||
-          log.serviceProviderId.toLowerCase().includes(filterValue.toLowerCase()) ||
-          (log.targetId && log.targetId.toLowerCase().includes(filterValue.toLowerCase()))
-        : true
+          log.serviceProviderId
+            .toLowerCase()
+            .includes(filterValue.toLowerCase()) ||
+          (log.targetId &&
+            log.targetId.toLowerCase().includes(filterValue.toLowerCase()))
+        : true;
 
-      const matchRole = roleFilter === "ALL" || log.role === roleFilter
+      const matchRole = roleFilter === "ALL" || log.role === roleFilter;
 
-      return matchFilter && matchRole
+      return matchFilter && matchRole;
     })
     .sort((a, b) => {
-      const order = sortOrder === "asc" ? 1 : -1
-      if (a[sortKey] < b[sortKey]) return -1 * order
-      if (a[sortKey] > b[sortKey]) return 1 * order
-      return 0
-    })
+      const order = sortOrder === "asc" ? 1 : -1;
+      if (a[sortKey] < b[sortKey]) return -1 * order;
+      if (a[sortKey] > b[sortKey]) return 1 * order;
+      return 0;
+    });
 
   const paginatedLogs = filteredLogs.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
-  )
+  );
 
   return (
-    <div className="container mx-auto py-10">
+    <Card className="p-5">
       <h1 className="text-2xl font-bold mb-5">Audit Log</h1>
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-4 p-4">
         <div className="flex space-x-2">
           <Input
             placeholder="Filter logs..."
@@ -153,7 +158,9 @@ export default function AuditLogPage() {
                 key={key}
                 className="capitalize"
                 checked={value}
-                onCheckedChange={() => toggleColumn(key as keyof typeof visibleColumns)}
+                onCheckedChange={() =>
+                  toggleColumn(key as keyof typeof visibleColumns)
+                }
               >
                 {key}
               </DropdownMenuCheckboxItem>
@@ -164,84 +171,111 @@ export default function AuditLogPage() {
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <div className="rounded-md border">
+        <div className="rounded-md border p-0">
           <Table>
             <TableHeader>
               <TableRow>
                 {visibleColumns.username && (
                   <TableHead className="w-[200px]">
-                    <Button variant="ghost" onClick={() => handleSort("username")}>
-                      Username {sortKey === "username" && (sortOrder === "asc" ? <ChevronUp /> : <ChevronDown />)}
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleSort("username")}
+                    >
+                      Username{" "}
+                      {sortKey === "username" &&
+                        (sortOrder === "asc" ? <ChevronUp /> : <ChevronDown />)}
                     </Button>
                   </TableHead>
                 )}
                 {visibleColumns.action && (
                   <TableHead>
-                    <Button variant="ghost" onClick={() => handleSort("action")}>
-                      Action {sortKey === "action" && (sortOrder === "asc" ? <ChevronUp /> : <ChevronDown />)}
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleSort("action")}
+                    >
+                      Action{" "}
+                      {sortKey === "action" &&
+                        (sortOrder === "asc" ? <ChevronUp /> : <ChevronDown />)}
                     </Button>
                   </TableHead>
-
                 )}
-                  {visibleColumns.targetId && (
-                    <TableHead>
-                        <Button variant="ghost" onClick={() => handleSort("targetId")}>
-                          Target ID {sortKey === "targetId" && (sortOrder === "asc" ? <ChevronUp /> : <ChevronDown />)}
-                        </Button>
-                    </TableHead>
-                  )}
-
-                  {visibleColumns.timestamp && (
-                    <TableHead>
-                        <Button variant="ghost" onClick={() => handleSort("timestamp")}>
-                          Timestamp {sortKey === "timestamp" && (sortOrder === "asc" ? <ChevronUp /> : <ChevronDown />)}
-                        </Button>
-                    </TableHead>
-                  )}
-
-
-                  {visibleColumns.serviceProviderId && (
-                    <TableHead>
-                        <Button variant="ghost" onClick={() => handleSort("serviceProviderId")}>
-                          Service Provider ID {sortKey === "serviceProviderId" && (sortOrder === "asc" ? <ChevronUp /> : <ChevronDown />)}
-                        </Button>
-                    </TableHead>
-                  )}
-
-                  {visibleColumns.role && (
-                    <TableHead>
-                        <Button variant="ghost" onClick={() => handleSort("role")}>
-                          Role {sortKey === "role" && (sortOrder === "asc" ? <ChevronUp /> : <ChevronDown />)}
-                        </Button>
-                    </TableHead>
-                  )}
-
-                  {visibleColumns.metadata && (
-                        <TableHead>
-                              <Button variant="ghost" onClick={() => handleSort("metadata")}>
-                              Metadata 
-                              </Button>
-                        </TableHead>
-                  )}
-
-                  
-
-
-                {/* Repeat for other columns as per visibility */}
+                {visibleColumns.targetId && (
+                  <TableHead>
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleSort("targetId")}
+                    >
+                      Target ID{" "}
+                      {sortKey === "targetId" &&
+                        (sortOrder === "asc" ? <ChevronUp /> : <ChevronDown />)}
+                    </Button>
+                  </TableHead>
+                )}
+                {visibleColumns.timestamp && (
+                  <TableHead>
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleSort("timestamp")}
+                    >
+                      Timestamp{" "}
+                      {sortKey === "timestamp" &&
+                        (sortOrder === "asc" ? <ChevronUp /> : <ChevronDown />)}
+                    </Button>
+                  </TableHead>
+                )}
+                {visibleColumns.serviceProviderId && (
+                  <TableHead>
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleSort("serviceProviderId")}
+                    >
+                      Service Provider ID{" "}
+                      {sortKey === "serviceProviderId" &&
+                        (sortOrder === "asc" ? <ChevronUp /> : <ChevronDown />)}
+                    </Button>
+                  </TableHead>
+                )}
+                {visibleColumns.role && (
+                  <TableHead>
+                    <Button variant="ghost" onClick={() => handleSort("role")}>
+                      Role{" "}
+                      {sortKey === "role" &&
+                        (sortOrder === "asc" ? <ChevronUp /> : <ChevronDown />)}
+                    </Button>
+                  </TableHead>
+                )}
+                {visibleColumns.metadata && (
+                  <TableHead>
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleSort("metadata")}
+                    >
+                      Metadata
+                    </Button>
+                  </TableHead>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedLogs.map((log) => (
                 <TableRow key={log._id}>
-                  {visibleColumns.username && <TableCell>{log.username}</TableCell>}
+                  {visibleColumns.username && (
+                    <TableCell>{log.username}</TableCell>
+                  )}
                   {visibleColumns.action && <TableCell>{log.action}</TableCell>}
-                  {visibleColumns.targetId && <TableCell>{log.targetId}</TableCell>}
-                  {visibleColumns.timestamp && <TableCell>{log.timestamp}</TableCell>}
-                  {visibleColumns.serviceProviderId && <TableCell>{log.serviceProviderId}</TableCell>}
+                  {visibleColumns.targetId && (
+                    <TableCell>{log.targetId}</TableCell>
+                  )}
+                  {visibleColumns.timestamp && (
+                    <TableCell>{log.timestamp.toLocaleString()}</TableCell>
+                  )}
+                  {visibleColumns.serviceProviderId && (
+                    <TableCell>{log.serviceProviderId}</TableCell>
+                  )}
                   {visibleColumns.role && <TableCell>{log.role}</TableCell>}
-                  {visibleColumns.metadata && <TableCell>{JSON.stringify(log.metadata)}</TableCell>}
-
-                  {/* Repeat for other columns as per visibility */}
+                  {visibleColumns.metadata && (
+                    <TableCell>{JSON.stringify(log.metadata)}</TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
@@ -258,16 +292,24 @@ export default function AuditLogPage() {
           <ChevronLeft />
           Previous
         </Button>
-        <div className="text-center">Page {currentPage} of {Math.ceil(filteredLogs.length / itemsPerPage)}</div>
+        <div className="text-center">
+          Page {currentPage} of {Math.ceil(filteredLogs.length / itemsPerPage)}
+        </div>
         <Button
           variant="outline"
           size="sm"
-          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, Math.ceil(filteredLogs.length / itemsPerPage)))}
-          disabled={currentPage === Math.ceil(filteredLogs.length / itemsPerPage)}
+          onClick={() =>
+            setCurrentPage((prev) =>
+              Math.min(prev + 1, Math.ceil(filteredLogs.length / itemsPerPage))
+            )
+          }
+          disabled={
+            currentPage === Math.ceil(filteredLogs.length / itemsPerPage)
+          }
         >
           Next <ChevronRight />
         </Button>
       </div>
-    </div>
-  )
+    </Card>
+  );
 }

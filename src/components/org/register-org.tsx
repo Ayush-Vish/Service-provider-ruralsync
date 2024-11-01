@@ -7,11 +7,20 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import useLocation from "../../hooks/useLocation";
 import { useOrgStore } from "@/stores/org.store";
 import toast from "react-hot-toast";
 import ImageUpload from "../uploadImage";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Badge } from "../ui/badge";
+const defaultCategories = [
+  "CLEANING",
+  "PLUMBING",
+  "ELECTRICAL",
+  "LANDSCAPING",
+  "PAINTING",
+]
 
 // Validation functions
 const validatePhone = (phone: string) => {
@@ -52,6 +61,7 @@ export type OrganizationData = {
   location?: {
     coordinates: [number, number];
   };
+  categories: string[];
   isVerified?: boolean;
   bookingsCount?: number;
   revenue?: number;
@@ -79,7 +89,9 @@ export default function RegistrationForm() {
   const registerOrg = useOrgStore((state) => state.registerOrg);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-
+  const [categories, setCategories] = useState(defaultCategories)
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const [newCategory, setNewCategory] = useState("")
   const [orgData, setOrgData] = useState<OrganizationData>({
     name: "",
     phone: "",
@@ -94,6 +106,7 @@ export default function RegistrationForm() {
       instagram: "",
     },
     businessHours: defaultBusinessHours,
+    categories: [],
     createdAt: "",
     updatedAt: "",
   });
@@ -112,6 +125,7 @@ export default function RegistrationForm() {
     if (!orgData.address.trim()) {
       newErrors.address = "Address is required";
     }
+
 
     // if (orgData.website && !validateUrl(orgData.website)) {
     //   newErrors.website = "Please enter a valid website URL";
@@ -177,6 +191,26 @@ export default function RegistrationForm() {
       },
     }));
   };
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(category)
+        ? prev.filter((c) => c !== category)
+        : [...prev, category]
+    )
+    setOrgData((prev) => ({ ...prev, categories: selectedCategories }))
+  }
+
+  const handleAddCategory = () => {
+    if (newCategory && !categories.includes(newCategory)) {
+      setCategories((prev) => [...prev, newCategory])
+      setSelectedCategories((prev) => [...prev, newCategory])
+      setNewCategory("")
+    }
+  }
+
+  const handleRemoveCategory = (category: string) => {
+    setSelectedCategories((prev) => prev.filter((c) => c !== category))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -208,6 +242,7 @@ export default function RegistrationForm() {
       orgData.images.forEach((image, _) => {
         formData.append(`images`, image);
       });
+      formData.append("categories", JSON.stringify(selectedCategories))
 
       formData.append("socialMedia", JSON.stringify(orgData.socialMedia));
       formData.append("businessHours", JSON.stringify(orgData.businessHours));
@@ -359,7 +394,46 @@ export default function RegistrationForm() {
               ))}
             </div>
           </div>
-
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Service Categories</h3>
+            <div className="flex flex-wrap gap-2">
+              {selectedCategories.map((category) => (
+                <Badge key={category} variant="secondary">
+                  {category}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="ml-2 h-4 w-4 p-0"
+                    onClick={() => handleRemoveCategory(category)}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </Badge>
+              ))}
+            </div>
+            <Select onValueChange={handleCategoryChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <div className="flex gap-2">
+              <Input
+                placeholder="Add new category"
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+              />
+              <Button type="button" onClick={handleAddCategory}>
+                Add
+              </Button>
+            </div>
+          </div>
           {/* Location */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Location</h3>

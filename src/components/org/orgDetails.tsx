@@ -2,9 +2,9 @@ import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { OrganizationData, useOrgStore } from "@/stores/org.store";
-import RegistrationForm from "./register-org"; // Fixed typo in import
-import { Loader2 } from "lucide-react";
+import RegistrationForm from "./register-org";
 
 export default function OrganizationDetails() {
   const orgData = useOrgStore((state) => state.orgDetails);
@@ -15,10 +15,10 @@ export default function OrganizationDetails() {
   }, [getOrgDetails]);
 
   return (
-    <div className="p-6">
-      <Card className="shadow-lg rounded-lg border border-gray-200">
+    <div className="p-6 bg-background text-foreground">
+      <Card className="shadow-lg rounded-lg border border-border">
         <CardHeader>
-          <CardTitle className="text-2xl font-semibold text-gray-800">
+          <CardTitle className="text-2xl font-semibold text-foreground">
             {orgData?.isVerified ? "Organization Information" : "Register Organization"}
           </CardTitle>
         </CardHeader>
@@ -36,7 +36,7 @@ export default function OrganizationDetails() {
 
 function OrganizationInfo({ orgData }: { orgData: OrganizationData }) {
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 text-muted-foreground">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <InfoItem label="Organization Name" value={orgData.name} />
         <InfoItem label="Phone" value={orgData.phone} />
@@ -85,6 +85,7 @@ function OrganizationInfo({ orgData }: { orgData: OrganizationData }) {
 
       <SocialMediaSection socialMedia={orgData.socialMedia} />
       <BusinessHoursSection businessHours={orgData.businessHours} />
+      <CategoriesSection categories={orgData.categories} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <InfoItem label="Verification Status" value={orgData.isVerified ? "Verified" : "Not Verified"} />
@@ -103,20 +104,10 @@ function OrganizationInfo({ orgData }: { orgData: OrganizationData }) {
       </div>
 
       <Button
-        className="w-full bg-center mt-6 transition-colors hover:bg-red-500"
+        className="w-full mt-6 bg-primary text-primary-foreground transition-colors hover:bg-red-500"
         disabled={!orgData.isVerified}
       >
-        {orgData.isVerified ? (
-          <>
-            {/* <Loader2 className="mr-2 h-4 w-4 animate-spin" /> */}
-        
-              Edit Organization Details
-
-            
-          </>
-        ) : (
-          "Register Organization"
-        )}
+        {orgData.isVerified ? "Edit Organization Details" : "Register Organization"}
       </Button>
     </div>
   );
@@ -125,24 +116,19 @@ function OrganizationInfo({ orgData }: { orgData: OrganizationData }) {
 function InfoItem({ label, value }: { label: string; value: string | number | undefined }) {
   return (
     <div>
-      <Label className="font-medium text-gray-700">{label}</Label>
-      <p className={`mt-1 text-gray-600 ${value ? '' : 'italic'}`}>{value || "N/A"}</p>
+      <Label className="font-medium text-muted-foreground">{label}</Label>
+      <p className={`mt-1 text-muted-foreground ${value ? '' : 'italic'}`}>{value || "N/A"}</p>
     </div>
   );
 }
 
 function SocialMediaSection({ socialMedia }: { socialMedia: { facebook?: string; twitter?: string; instagram?: string; linkedin?: string } }) {
   return (
-    
     <div>
-      <Label className="font-bold">Social Media</Label>
+      <Label className="font-bold text-muted-foreground">Social Media</Label>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-2">
-        {Object.entries(socialMedia || {}).map(([_, link]) => (
-          <div>
-            {
-              link
-            }
-          </div>
+        {Object.entries(socialMedia || {}).map(([platform, link]) => (
+          <InfoItem key={platform} label={platform} value={link} />
         ))}
       </div>
     </div>
@@ -152,7 +138,7 @@ function SocialMediaSection({ socialMedia }: { socialMedia: { facebook?: string;
 function BusinessHoursSection({ businessHours }: { businessHours?: Record<string, { start: string; end: string } | "Closed"> }) {
   return (
     <div>
-      <Label className="font-bold">Business Hours</Label>
+      <Label className="font-bold text-muted-foreground">Business Hours</Label>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-2">
         {Object.entries(businessHours || {}).map(([day, hours]) => (
           <InfoItem
@@ -161,6 +147,25 @@ function BusinessHoursSection({ businessHours }: { businessHours?: Record<string
             value={hours === "Closed" ? "Closed" : `${hours.start} - ${hours.end}`}
           />
         ))}
+      </div>
+    </div>
+  );
+}
+
+function CategoriesSection({ categories }: { categories?: string[] }) {
+  return (
+    <div>
+      <Label className="font-bold text-muted-foreground">Service Categories</Label>
+      <div className="flex flex-wrap gap-2 mt-2">
+        {categories && categories.length > 0 ? (
+          categories.map((category) => (
+            <Badge key={category} variant="secondary">
+              {category}
+            </Badge>
+          ))
+        ) : (
+          <p className="text-muted-foreground italic">No categories specified</p>
+        )}
       </div>
     </div>
   );

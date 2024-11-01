@@ -16,6 +16,7 @@ export type OrganizationData = {
     instagram: string;
     linkedin?: string;
   };
+  categories: string[];
   businessHours: Record<string, { start: string; end: string }>;
   location?: {
     coordinates: [number, number];
@@ -53,7 +54,7 @@ export const useOrgStore = create<OrgState>((set) => ({
   },
   registerOrg: async (orgData) => {
     console.log(orgData.forEach((value, key) => console.log(key, value)));
-
+    
     try {
       const res = await axiosInstance.post(`${SHOPKEEPER_BASE_URL}/register-org`, orgData);
       set({ orgDetails: res.data });
