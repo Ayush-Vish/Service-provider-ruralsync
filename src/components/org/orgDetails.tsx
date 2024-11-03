@@ -9,7 +9,7 @@ import RegistrationForm from "./register-org";
 export default function OrganizationDetails() {
   const orgData = useOrgStore((state) => state.orgDetails);
   const getOrgDetails = useOrgStore((state) => state.getOrgDetails);
-
+  console.log(orgData?.isVerified)
   useEffect(() => {
     getOrgDetails();
   }, [getOrgDetails]);
@@ -95,7 +95,7 @@ function OrganizationInfo({ orgData }: { orgData: OrganizationData }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <InfoItem label="Services" value={orgData.serviceCount || 0} />
         <InfoItem label="Agents" value={orgData.agentCount || 0} />
-        <InfoItem label="Clients" value={orgData.clients?.length || 0} />
+        <InfoItem label="Clients" value={orgData.clients || 0} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

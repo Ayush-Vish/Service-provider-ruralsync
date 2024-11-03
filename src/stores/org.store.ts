@@ -26,7 +26,7 @@ export type OrganizationData = {
   revenue?: number;
   agentCount?: number;
   serviceCount?: number;
-  clients?: string[];
+  clients?: number;
   reviewCount?: number;
   rating?: number;
   createdAt: string;
@@ -44,7 +44,10 @@ export const useOrgStore = create<OrgState>((set) => ({
   getOrgDetails: async () => {
     try {
       const res = await axiosInstance.get(`${SHOPKEEPER_BASE_URL}org-detail`);
-      set({ orgDetails: res.data  });
+      console.log(res.data)
+      set({ orgDetails: res.data.org  });
+      // set agent count to res.data.agent
+      
       return true;
     } catch (error) {
       console.error(error);
@@ -54,7 +57,7 @@ export const useOrgStore = create<OrgState>((set) => ({
   },
   registerOrg: async (orgData) => {
     console.log(orgData.forEach((value, key) => console.log(key, value)));
-    
+
     try {
       const res = await axiosInstance.post(`${SHOPKEEPER_BASE_URL}/register-org`, orgData);
       set({ orgDetails: res.data });
