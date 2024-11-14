@@ -8,7 +8,6 @@ import { Booking, useBookingStore } from '@/stores/booking.store';
 import AgentAssignmentModal from './assign-agent';
 import BookingDetailsModal from './booking-detail';
 
-
 export default function Bookings() {
   const bookings = useBookingStore(state => state.bookings);
   const getBookings = useBookingStore(state => state.getAllBookings);
@@ -18,7 +17,7 @@ export default function Bookings() {
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
-  const filteredBookings = filter === 'all' ? bookings : bookings.filter(booking => booking.status === filter);
+  const filteredBookings = filter === 'all' ? bookings : bookings?.filter(booking => booking?.status === filter);
 
   const handleDeleteBooking = (id: string) => {
     // Add delete logic here
@@ -44,6 +43,7 @@ export default function Bookings() {
   async function handleGetBookings() {
     getBookings();
   }
+  console.log(bookings)
 
   useEffect(() => {
     handleGetBookings();
@@ -80,18 +80,18 @@ export default function Bookings() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredBookings.map(booking => (
-              <TableRow key={booking._id}>
-                <TableCell>{booking.client.name}</TableCell>
-                <TableCell>{booking.service.name}</TableCell>
-                <TableCell>{booking.bookingDate} {booking.bookingTime}</TableCell>
-                <TableCell>{booking.status}</TableCell>
+            {filteredBookings?.map(booking => (
+              <TableRow key={booking?._id}>
+                <TableCell>{booking?.client?.name}</TableCell>
+                <TableCell>{booking?.service?.name}</TableCell>
+                <TableCell>{booking?.bookingDate} {booking?.bookingTime}</TableCell>
+                <TableCell>{booking?.status}</TableCell>
                 <TableCell>
-                  <Button variant="outline" size="sm" className="mr-2" onClick={() => handleAssignAgent(booking._id)}>
+                  <Button variant="outline" size="sm" className="mr-2" onClick={() => handleAssignAgent(booking?._id)}>
                     <UserPlus className="w-4 h-4 mr-1" />
                     Assign Agent
                   </Button>
-                  <Button variant="outline" size="sm" className="mr-2" onClick={() => handleViewDetails(booking._id)}>
+                  <Button variant="outline" size="sm" className="mr-2" onClick={() => handleViewDetails(booking?._id)}>
                     <Eye className="w-4 h-4 mr-1" />
                     View
                   </Button>
@@ -99,7 +99,7 @@ export default function Bookings() {
                     <Edit className="w-4 h-4 mr-1" />
                     Edit
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => handleDeleteBooking(booking._id)}>
+                  <Button variant="outline" size="sm" onClick={() => handleDeleteBooking(booking?._id)}>
                     <Trash2 className="w-4 h-4 mr-1" />
                     Delete
                   </Button>

@@ -26,7 +26,7 @@ export default function BookingDetailsModal({ bookingId, isOpen, setIsOpen }: Bo
         </DialogHeader>
         {bookingDetails ? (
           <div className="space-y-4">
-            <p><strong>Customer Name:</strong> {bookingDetails.client.name}</p>
+            <p><strong>Customer Name:</strong> {bookingDetails?.client?.name}</p>
             <p><strong>Service:</strong> {bookingDetails.service.name} - {bookingDetails.service.description}</p>
             <p><strong>Date & Time:</strong> {bookingDetails.bookingDate} {bookingDetails.bookingTime}</p>
             <p><strong>Status:</strong> {bookingDetails.status}</p>

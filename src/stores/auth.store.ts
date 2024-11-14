@@ -17,14 +17,13 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set, get) => ({
   isLoggedIn: false,
   user: null,
-
   setAuth: (isLoggedIn: boolean, user: any | null) => {
     set({ isLoggedIn, user });
   },
 
   initialise: async () => {
     try {
-      const res = await axiosInstance.get(AUTH_BASE_URL + "user-detail", {
+      const res = await axiosInstance.get(AUTH_BASE_URL + "user-detail/service-provider", {
         withCredentials: true, // Include credentials for cookies
       });
 
