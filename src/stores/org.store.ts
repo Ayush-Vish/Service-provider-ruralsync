@@ -64,6 +64,7 @@ interface OrgState {
   setOrgDetails: (details: OrganizationAPI) => void;
   getOrgDetails: () => Promise<boolean>;
   registerOrg: (orgData: FormData) => Promise<boolean>;
+  updateOrg: (orgData: Partial<OrganizationAPI>) => Promise<boolean>;
 }
 
 // Default state for unregistered organization
@@ -126,6 +127,22 @@ export const useOrgStore = create<OrgState>((set) => ({
     } catch (error) {
       console.error(error);
       toast.error("Failed to register organization");
+      return false;
+    }
+  },
+
+  updateOrg: async (orgData) => {
+    try {
+      const res = await axiosInstance.put<{ data: OrganizationAPI }>(
+        `${SHOPKEEPER_BASE_URL}org-update`,
+        orgData
+      );
+      set({ orgDetails: res.data.data });
+      toast.success("Organization updated successfully");
+      return true;
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update organization");
       return false;
     }
   },

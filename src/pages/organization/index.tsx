@@ -1,9 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import RegistrationForm from "@/components/org/register-org";
+import EditOrganizationForm from "@/components/org/edit-orgform";
 import { OrganizationAPI, useOrgStore } from "@/stores/org.store";
 import { 
   Building2, 
@@ -16,15 +16,16 @@ import {
   Calendar,
   Edit,
   ExternalLink,
-  Clock
+  Clock,
+  ArrowLeft
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Separator } from "@/components/ui/separator";
 
 export default function OrganizationPage() {
   const orgData = useOrgStore((state) => state.orgDetails);
   const isLoading = useOrgStore((state) => state.isLoading);
   const getOrgDetails = useOrgStore((state) => state.getOrgDetails);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     getOrgDetails();
@@ -98,6 +99,34 @@ export default function OrganizationPage() {
     );
   }
 
+  // Edit Mode
+  if (isEditing) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => setIsEditing(false)}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Edit Organization</h1>
+            <p className="text-muted-foreground">
+              Update your organization details
+            </p>
+          </div>
+        </div>
+        <EditOrganizationForm 
+          orgData={orgData} 
+          onCancel={() => setIsEditing(false)}
+          onSuccess={() => {
+            setIsEditing(false);
+            getOrgDetails();
+          }}
+        />
+      </div>
+    );
+  }
+
+  // View Mode
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -108,7 +137,7 @@ export default function OrganizationPage() {
             Manage your organization details and settings
           </p>
         </div>
-        <Button className="gap-2">
+        <Button className="gap-2" onClick={() => setIsEditing(true)}>
           <Edit className="h-4 w-4" />
           Edit Details
         </Button>
@@ -146,14 +175,14 @@ export default function OrganizationPage() {
                     )}
                     <div className="flex items-center gap-1 text-amber-500">
                       <Star className="h-4 w-4 fill-current" />
-                      <span className="text-sm font-medium">{orgData.rating}</span>
-                      <span className="text-muted-foreground text-sm">({orgData.reviewCount} reviews)</span>
+                      <span className="text-sm font-medium">{orgData.rating || 0}</span>
+                      <span className="text-muted-foreground text-sm">({orgData.reviewCount || 0} reviews)</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <p className="text-muted-foreground">{orgData.description}</p>
+              <p className="text-muted-foreground">{orgData.description || "No description provided."}</p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {orgData.phone && (
@@ -196,7 +225,7 @@ export default function OrganizationPage() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Services</p>
-                <p className="text-2xl font-bold">{orgData.serviceCount}</p>
+                <p className="text-2xl font-bold">{orgData.serviceCount || 0}</p>
               </div>
             </div>
           </CardContent>
@@ -209,7 +238,7 @@ export default function OrganizationPage() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Agents</p>
-                <p className="text-2xl font-bold">{orgData.agentCount}</p>
+                <p className="text-2xl font-bold">{orgData.agentCount || 0}</p>
               </div>
             </div>
           </CardContent>
@@ -222,7 +251,7 @@ export default function OrganizationPage() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Clients</p>
-                <p className="text-2xl font-bold">{orgData.clients}</p>
+                <p className="text-2xl font-bold">{orgData.clients || 0}</p>
               </div>
             </div>
           </CardContent>
@@ -232,7 +261,7 @@ export default function OrganizationPage() {
       {/* Business Hours & Categories */}
       <div className="grid gap-6 md:grid-cols-2">
         {/* Business Hours */}
-        {orgData.businessHours && (
+        {orgData.businessHours && Object.keys(orgData.businessHours).length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -299,14 +328,18 @@ export default function OrganizationPage() {
       <Card>
         <CardContent className="pt-6">
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              <span>Created: {new Date(orgData.createdAt).toLocaleDateString()}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              <span>Last updated: {new Date(orgData.updatedAt).toLocaleDateString()}</span>
-            </div>
+            {orgData.createdAt && (
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                <span>Created: {new Date(orgData.createdAt).toLocaleDateString()}</span>
+              </div>
+            )}
+            {orgData.updatedAt && (
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4" />
+                <span>Last updated: {new Date(orgData.updatedAt).toLocaleDateString()}</span>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
