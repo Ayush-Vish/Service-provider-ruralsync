@@ -2,9 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Trash2, PlusCircle } from "lucide-react";
+import { Trash2, PlusCircle, MapPin, Navigation } from "lucide-react";
 import ImageUpload from "../uploadImage";
 import {  ServiceFormData } from "@/stores/services.store";
+import { LocationSearchInput } from "@/components/location/LocationSearchInput";
+import { useLocationStore } from "@/stores/location.store";
 
 
 type ServiceFormProps = {
@@ -25,6 +27,7 @@ type ServiceFormProps = {
   error: { message: string } | null;
   imageFiles: File[];
   setImageFiles: (files: File[]) => void;
+  onLocationChange?: (location: { coordinates: [number, number] }, address: ServiceFormData['address']) => void;
 };
 
 export default function ServiceForm({
@@ -44,9 +47,11 @@ export default function ServiceForm({
   setIsAddingService,
   error,
   imageFiles, 
-  setImageFiles
-
+  setImageFiles,
+  onLocationChange,
 }: ServiceFormProps) {
+  const { displayName, hasLocation, getCoordinates } = useLocationStore();
+  const coords = getCoordinates();
 
 
   return (
@@ -208,6 +213,43 @@ export default function ServiceForm({
               Add Tag
             </Button>
           </div>
+          
+          {/* Service Location */}
+          <div className="space-y-3 border-t pt-4">
+            <h4 className="font-medium flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-green-600" />
+              Service Location
+            </h4>
+            <p className="text-sm text-muted-foreground">
+              Uses your organization's location by default. You can change it for this specific service.
+            </p>
+            <LocationSearchInput
+              value={displayName || ""}
+              placeholder="Search service location..."
+              onLocationSelect={(loc) => {
+                onLocationChange?.(
+                  { coordinates: [loc.lng, loc.lat] },
+                  {
+                    street: loc.street || "",
+                    city: loc.city,
+                    state: loc.state,
+                    zipCode: loc.zipCode || "",
+                    country: "India",
+                  }
+                );
+              }}
+              showGpsButton={true}
+              compact={true}
+            />
+            {hasLocation() && coords && (
+              <div className="text-xs text-muted-foreground flex items-center gap-2">
+                <Navigation className="h-3 w-3 text-green-600" />
+                Current: {newService.address.city || "Unknown"}, {newService.address.state || "Unknown"} 
+                <span className="font-mono">({coords.lat.toFixed(4)}, {coords.lng.toFixed(4)})</span>
+              </div>
+            )}
+          </div>
+          
           <ImageUpload
             label="Upload Images"
             multiple={true}

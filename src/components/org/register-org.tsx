@@ -7,13 +7,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, X } from "lucide-react";
+import { Loader2, X, MapPin, Navigation } from "lucide-react";
 import useLocation from "../../hooks/useLocation";
 import { useOrgStore } from "@/stores/org.store";
 import toast from "react-hot-toast";
 import ImageUpload from "../uploadImage";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Badge } from "../ui/badge";
+import { LocationSearchInput } from "@/components/location/LocationSearchInput";
 const defaultCategories = [
   "CLEANING",
   "PLUMBING",
@@ -85,7 +86,15 @@ const defaultBusinessHours: Record<string, { start: string; end: string }> = {
 };
 
 export default function RegistrationForm() {
-  const { location, error: locationError } = useLocation();
+  const { 
+    location, 
+    error: locationError, 
+    city, 
+    state, 
+    displayName,
+    setLocation,
+    detectLocation,
+  } = useLocation();
   const registerOrg = useOrgStore((state) => state.registerOrg);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -436,19 +445,65 @@ export default function RegistrationForm() {
           </div>
           {/* Location */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Location</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <InputField
-                label="Latitude"
-                value={location?.latitude?.toString() || ""}
-                readOnly
-              />
-              <InputField
-                label="Longitude"
-                value={location?.longitude?.toString() || ""}
-                readOnly
-              />
-            </div>
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-green-600" />
+              Location
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Search for your business location or use GPS to detect automatically
+            </p>
+            
+            {/* Location Search */}
+            <LocationSearchInput
+              value={displayName || ""}
+              placeholder="Search your business address..."
+              onLocationSelect={(loc) => {
+                setLocation({
+                  latitude: loc.lat,
+                  longitude: loc.lng,
+                  city: loc.city,
+                  state: loc.state,
+                  displayName: loc.displayName,
+                  street: loc.street,
+                  zipCode: loc.zipCode,
+                });
+                // Also update the address field
+                setOrgData((prev) => ({
+                  ...prev,
+                  address: loc.displayName,
+                }));
+              }}
+              showGpsButton={true}
+            />
+            
+            {/* Display detected location info */}
+            {location && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-2">
+                <div className="flex items-center gap-2 text-green-700">
+                  <Navigation className="h-4 w-4" />
+                  <span className="font-medium">Location Detected</span>
+                </div>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">City:</span>{" "}
+                    <span className="font-medium">{city || "N/A"}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">State:</span>{" "}
+                    <span className="font-medium">{state || "N/A"}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Latitude:</span>{" "}
+                    <span className="font-mono">{location.latitude.toFixed(6)}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Longitude:</span>{" "}
+                    <span className="font-mono">{location.longitude.toFixed(6)}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            
             {locationError && (
               <Alert variant="destructive">
                 <AlertDescription>{locationError.message}</AlertDescription>

@@ -37,6 +37,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLocationStore } from "@/stores/location.store";
 
 export default function ServicesPage() {
   const services = useServiceStore((state) => state.services);
@@ -44,6 +45,9 @@ export default function ServicesPage() {
   const addService = useServiceStore((state) => state.addService);
   const deleteService = useServiceStore((state) => state.deleteService);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Get location from global store
+  const { getCoordinates, getAddressObject, hasLocation } = useLocationStore();
 
   const [isAddingService, setIsAddingService] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
@@ -52,6 +56,10 @@ export default function ServicesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
+  
+  // Initialize service with location from store
+  const coords = getCoordinates();
+  const addressObj = getAddressObject();
 
   const [newService, setNewService] = useState<ServiceFormData>({
     name: "",
@@ -64,8 +72,8 @@ export default function ServicesPage() {
       { day: "Tuesday", startTime: "09:00", endTime: "17:00" },
     ],
     additionalTasks: [],
-    location: { coordinates: [0, 0] },
-    address: { street: "", city: "", state: "", zipCode: "", country: "" },
+    location: { coordinates: coords ? [coords.lng, coords.lat] : [0, 0] },
+    address: addressObj,
     tags: [],
     images: []
   });
@@ -78,6 +86,21 @@ export default function ServicesPage() {
     };
     fetchServices();
   }, [getServices]);
+  
+  // Update service location when global location changes
+  useEffect(() => {
+    if (hasLocation()) {
+      const coords = getCoordinates();
+      const addressObj = getAddressObject();
+      if (coords) {
+        setNewService(prev => ({
+          ...prev,
+          location: { coordinates: [coords.lng, coords.lat] },
+          address: addressObj,
+        }));
+      }
+    }
+  }, [hasLocation, getCoordinates, getAddressObject]);
 
   const filteredServices = services?.filter(service =>
     service.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -278,6 +301,13 @@ export default function ServicesPage() {
               error={null}
               imageFiles={imageFiles}
               setImageFiles={setImageFiles}
+              onLocationChange={(location, address) => {
+                setNewService(prev => ({
+                  ...prev,
+                  location,
+                  address,
+                }));
+              }}
             />
           </CardContent>
         </Card>
