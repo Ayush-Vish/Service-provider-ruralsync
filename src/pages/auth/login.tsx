@@ -42,7 +42,7 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/auth/google?role=SERVICE_PROVIDER`;
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google?role=SERVICE_PROVIDER`;
   };
 
   return (
@@ -106,8 +106,8 @@ export default function LoginPage() {
                 <Label htmlFor="password" className="text-sm font-medium">
                   Password
                 </Label>
-                <Link 
-                  to="/auth/forgot-password" 
+                <Link
+                  to="/auth/forgot-password"
                   className="text-xs text-primary hover:underline"
                 >
                   Forgot password?
@@ -130,8 +130,8 @@ export default function LoginPage() {
           </CardContent>
 
           <CardFooter className="flex flex-col gap-4 pb-6">
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="w-full h-11 font-medium"
               disabled={isLoading}
             >

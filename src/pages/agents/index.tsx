@@ -3,14 +3,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { useAgentStore } from "@/stores/agent.store";
 import AgentForm from "@/components/agent/agent-form";
-import { 
-  Plus, 
-  Search, 
-  MoreVertical, 
-  Edit, 
-  Trash2, 
+import {
+  Plus,
+  Search,
+  MoreVertical,
+  Edit,
+  Trash2,
   Eye,
   Phone,
   Mail,
@@ -67,13 +68,90 @@ function getStatusColor(status: string) {
   }
 }
 
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Copy } from 'lucide-react';
+
+function InviteAgentDialog({ open, onOpenChange, onInvite }: { open: boolean; onOpenChange: (open: boolean) => void; onInvite: (email?: string) => Promise<string | null> }) {
+  const [inviteLink, setInviteLink] = useState<string | null>(null);
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleGenerate = async () => {
+    setLoading(true);
+    const link = await onInvite(email || undefined);
+    if (link) {
+      setInviteLink(link);
+    }
+    setLoading(false);
+  };
+
+  const copyToClipboard = () => {
+    if (inviteLink) {
+      navigator.clipboard.writeText(inviteLink);
+      // toast.success("Copied!"); // Assuming toast is available or handle it
+    }
+  };
+
+  const handleClose = () => {
+    setInviteLink(null);
+    setEmail('');
+    onOpenChange(false);
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Invite New Agent</DialogTitle>
+          <DialogDescription>Generate an invitation link for a new agent.</DialogDescription>
+        </DialogHeader>
+        {!inviteLink ? (
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Email (Optional)</Label>
+              <Input
+                placeholder="agent@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">If provided, the link will be locked to this email.</p>
+            </div>
+            <Button onClick={handleGenerate} disabled={loading} className="w-full">
+              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              Generate Link
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-4 py-4">
+            <div className="flex items-center space-x-2">
+              <div className="grid flex-1 gap-2">
+                <Label htmlFor="link" className="sr-only">Link</Label>
+                <Input id="link" defaultValue={inviteLink} readOnly />
+              </div>
+              <Button type="submit" size="sm" className="px-3" onClick={copyToClipboard}>
+                <span className="sr-only">Copy</span>
+                <Copy className="h-4 w-4" />
+              </Button>
+            </div>
+            <Button variant="outline" onClick={() => setInviteLink(null)} className="w-full">
+              Generate Another
+            </Button>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function AgentsPage() {
   const agents = useAgentStore((state) => state.agents);
   const getAllAgents = useAgentStore((state) => state.getAllAgents);
   const deleteAgent = useAgentStore((state) => state.deleteAgent);
+  const generateInvite = useAgentStore((state) => state.generateInvite); // Add this
   const [isLoading, setIsLoading] = useState(true);
 
   const [isAddingAgent, setIsAddingAgent] = useState(false);
+  const [showInvite, setShowInvite] = useState(false); // Add state
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
@@ -88,13 +166,13 @@ export default function AgentsPage() {
   }, [getAllAgents]);
 
   const filteredAgents = agents?.filter(agent => {
-    const matchesSearch = 
+    const matchesSearch =
       agent.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       agent.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       agent.phoneNumber?.includes(searchQuery);
-    
+
     const matchesStatus = statusFilter === 'all' || agent.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   }) || [];
 
@@ -105,6 +183,15 @@ export default function AgentsPage() {
     }
   };
 
+  const handleInviteAgent = async (email?: string) => {
+    const token = await generateInvite(email);
+    if (token) {
+      // Construct full URL
+      return `${import.meta.env.VITE_AGENT_APP_URL || 'http://localhost:5002'}/register?token=${token}`;
+    }
+    return null;
+  }
+  // ... stats logic ...
   const stats = {
     total: agents?.length || 0,
     free: agents?.filter(a => a.status === 'FREE').length || 0,
@@ -122,10 +209,16 @@ export default function AgentsPage() {
             Manage your service delivery agents
           </p>
         </div>
-        <Button onClick={() => setIsAddingAgent(true)} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Agent
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowInvite(true)} className="gap-2">
+            <Mail className="h-4 w-4" />
+            Invite Agent
+          </Button>
+          <Button onClick={() => setIsAddingAgent(true)} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Add Agent (Manual)
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -245,7 +338,7 @@ export default function AgentsPage() {
               <h3 className="font-semibold text-lg mb-1">No agents found</h3>
               <p className="text-muted-foreground text-center max-w-sm">
                 {searchQuery || statusFilter !== 'all'
-                  ? "Try adjusting your filters" 
+                  ? "Try adjusting your filters"
                   : "Get started by adding your first agent"}
               </p>
               {!searchQuery && statusFilter === 'all' && (
@@ -330,7 +423,7 @@ export default function AgentsPage() {
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             className="text-destructive"
                             onClick={() => setDeleteConfirmId(agent._id)}
                           >
@@ -359,7 +452,7 @@ export default function AgentsPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleDeleteAgent}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >

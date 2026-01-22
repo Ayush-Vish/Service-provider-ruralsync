@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/auth.store'; // Import your Zustand store
+import { useGoogleLogin } from '@react-oauth/google';
+import toast from 'react-hot-toast';
 
 export default function LoginPage() {
   const [name, setName] = useState(''); // State for the name
@@ -13,11 +15,22 @@ export default function LoginPage() {
 
   // Get the login function from Zustand store
   const login = useAuthStore((state) => state.login);
+  const googleLoginAction = useAuthStore((state) => state.googleLogin);
   const navigate = useNavigate();
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      const success = await googleLoginAction(tokenResponse.access_token);
+      if (success) {
+        navigate("/");
+      }
+    },
+    onError: () => toast.error("Google Login Failed"),
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Attempt to log in the user
     const success = await login({ name, email, password });
 
@@ -74,7 +87,7 @@ export default function LoginPage() {
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full">Login</Button>
-            
+
             {/* Divider */}
             <div className="relative w-full">
               <div className="absolute inset-0 flex items-center">
@@ -90,9 +103,7 @@ export default function LoginPage() {
               type="button"
               variant="outline"
               className="w-full"
-              onClick={() => {
-                window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/auth/google?role=SERVICE_PROVIDER`;
-              }}
+              onClick={() => googleLogin()}
             >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                 <path
@@ -114,7 +125,7 @@ export default function LoginPage() {
               </svg>
               Sign in with Google
             </Button>
-            
+
             <p className="text-sm text-center">
               Don't have an account?{' '}
               <Link to="/signup" className="text-blue-600 hover:underline">

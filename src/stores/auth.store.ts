@@ -10,6 +10,7 @@ interface AuthState {
   setAuth: (isLoggedIn: boolean, user: any | null) => void;
   initialise: () => Promise<boolean>;
   login: (loginData: any) => Promise<boolean>;
+  googleLogin: (token: string) => Promise<boolean>;
   register: (registerData: any) => Promise<boolean>;
   logout: () => void;
 }
@@ -64,6 +65,38 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error) {
       console.error("Login error:", error);
       toast.error("An error occurred during login");
+      return false;
+    }
+  },
+
+  googleLogin: async (token: string) => {
+    try {
+      const res = await axiosInstance.post(AUTH_BASE_URL + "google", {
+        token,
+        role: SERVICE_PROVIDER,
+      }, {
+        withCredentials: true,
+      });
+
+      if (!res.data || !res.data.success) {
+        toast.error("Google Login failed.");
+        return false;
+      }
+
+      toast.success("Google Login Successful");
+      
+      // If user data is returned, use it directly
+      if (res.data.user) {
+        get().setAuth(true, res.data.user);
+      } else {
+        // Fallback to fetching user details
+        await get().initialise();
+      }
+      
+      return true;
+    } catch (error: any) {
+      console.error("Google Login error:", error);
+      toast.error(error.response?.data?.message || "An error occurred during Google Login");
       return false;
     }
   },

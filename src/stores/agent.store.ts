@@ -10,7 +10,7 @@ export interface Agent {
   phoneNumber: string;
   password: string;
   address: string;
-  status : "BUSY" | "FREE"  | "OFFLINE"
+  status: "BUSY" | "FREE" | "OFFLINE"
   location: {
     latitude: number;
     longitude: number;
@@ -25,10 +25,11 @@ export interface Agent {
 interface AgentState {
   agents: Agent[];
   currAgent: Agent | null;
-  registerAgent: (agent: Omit<Agent, "_id">   ) => Promise<void>;
+  registerAgent: (agent: Omit<Agent, "_id">) => Promise<void>;
   getAllAgents: () => Promise<void>;
   deleteAgent: (id: string) => Promise<void>;
   getAgent: (id: string) => Promise<void>;
+  generateInvite: (email?: string) => Promise<string | null>;
 }
 
 export const useAgentStore = create<AgentState>((set) => ({
@@ -46,7 +47,7 @@ export const useAgentStore = create<AgentState>((set) => ({
       set((state) => ({ agents: [...state.agents, data] }));
       toast.success("Agent added successfully");
     } catch (error) {
-      toast.error("Failed to add agent: " );
+      toast.error("Failed to add agent: ");
       console.error(error);
     }
   },
@@ -74,7 +75,7 @@ export const useAgentStore = create<AgentState>((set) => ({
       }));
       toast.success("Agent deleted successfully");
     } catch (error) {
-      toast.error("Failed to delete agent: " );
+      toast.error("Failed to delete agent: ");
       console.error(error);
     }
   },
@@ -86,6 +87,21 @@ export const useAgentStore = create<AgentState>((set) => ({
     } catch (error) {
       toast.error("Failed to fetch agent details");
       console.error(error);
+    }
+  },
+
+  generateInvite: async (email) => {
+    try {
+      const res = await axiosInstance.post(AUTH_BASE_URL + "invite", { email });
+      if (res.status !== 201) {
+        toast.error("Failed to generate invite");
+        return null; // Return null instead of void
+      }
+      return res.data.data.token;
+    } catch (error) {
+      toast.error("Failed to generate invite");
+      console.error(error);
+      return null;
     }
   },
 }));
