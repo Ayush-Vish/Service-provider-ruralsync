@@ -3,12 +3,33 @@ import axiosInstance from '@/lib/axios';
 import toast from 'react-hot-toast';
 import { create } from 'zustand';
 
+export type ServiceFeature = {
+  icon?: string;
+  title: string;
+  description?: string;
+};
+
+export type ServiceFAQ = {
+  question: string;
+  answer: string;
+};
+
+export type ServicePricingTier = {
+  name: string;
+  price: number;
+  duration: string;
+  description?: string;
+  isPopular?: boolean;
+};
+
 export type ServiceFormData = {
   name: string;
   description: string;
+  shortDescription?: string;
   basePrice: number;
   estimatedDuration: string;
   category: string;
+  subCategory?: string;
   availability: { day: string; startTime: string; endTime: string }[];
   additionalTasks: {
     description: string;
@@ -22,19 +43,49 @@ export type ServiceFormData = {
     state: string;
     zipCode: string;
     country: string;
+    landmark?: string;
   };
-  images:File[];
+  images: File[];
+  coverImage?: File;
+  videoUrl?: string;
   tags: string[];
+  
+  // Enhanced fields
+  features: ServiceFeature[];
+  faqs: ServiceFAQ[];
+  pricingTiers: ServicePricingTier[];
+  requirements: string[];
+  cancellationPolicy?: string;
+  warrantyInfo?: string;
+  serviceArea?: {
+    radius: number;
+    cities: string[];
+  };
+  minBookingNotice?: number;
+  maxBookingsPerDay?: number;
+  contactPhone?: string;
+  contactEmail?: string;
+  socialLinks?: {
+    website?: string;
+    facebook?: string;
+    instagram?: string;
+    youtube?: string;
+  };
 }
+
 export type Service = {
   id: string;
   _id: string;
   name: string;
   description: string;
+  shortDescription?: string;
   basePrice: number;
   estimatedDuration: string;
   category: string;
+  subCategory?: string;
   images: string[];
+  coverImage?: string;
+  videoUrl?: string;
   availability: { day: string; startTime: string; endTime: string }[];
   additionalTasks: {
     description: string;
@@ -48,8 +99,37 @@ export type Service = {
     state: string;
     zipCode: string;
     country: string;
+    landmark?: string;
   };
   tags: string[];
+  rating: number;
+  reviewCount: number;
+  isActive: boolean;
+  isFeatured: boolean;
+  
+  // Enhanced fields
+  features: ServiceFeature[];
+  faqs: ServiceFAQ[];
+  pricingTiers: ServicePricingTier[];
+  requirements: string[];
+  cancellationPolicy?: string;
+  warrantyInfo?: string;
+  serviceArea?: {
+    radius: number;
+    cities: string[];
+  };
+  minBookingNotice?: number;
+  maxBookingsPerDay?: number;
+  completedBookings: number;
+  viewCount: number;
+  contactPhone?: string;
+  contactEmail?: string;
+  socialLinks?: {
+    website?: string;
+    facebook?: string;
+    instagram?: string;
+    youtube?: string;
+  };
 };
 
 interface ServiceState {

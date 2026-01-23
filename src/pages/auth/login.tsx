@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/stores/auth.store';
 import { Loader2, Mail, Lock, User, ArrowRight } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useGoogleLogin } from '@react-oauth/google';
+import toast from 'react-hot-toast';
 
 export default function LoginPage() {
   const [name, setName] = useState('');
@@ -16,10 +18,33 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
 
   const login = useAuthStore((state) => state.login);
+  const googleLoginAction = useAuthStore((state) => state.googleLogin);
   const navigate = useNavigate();
   const location = useLocation();
 
   const from = location.state?.from?.pathname || '/dashboard';
+
+  const googleLogin_ = useGoogleLogin({
+    
+    onSuccess: async (tokenResponse) => {
+      setIsLoading(true);
+      console.log("Google Login Success:", tokenResponse);
+      try {
+        console.log(tokenResponse);
+        const success = await googleLoginAction(tokenResponse.access_token);
+        if (success) {
+          navigate(from, { replace: true });
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    onError: () => {
+      console.error("Google Login Failed");
+      toast.error("Google Login Failed");
+      setIsLoading(false);
+    },
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +67,8 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google?role=SERVICE_PROVIDER`;
+    console.log("Initiating Google Login");
+    googleLogin_();
   };
 
   return (

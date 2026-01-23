@@ -20,6 +20,7 @@ export default function LoginPage() {
 
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
+      console.log("Google Login Success:", tokenResponse);
       const success = await googleLoginAction(tokenResponse.access_token);
       if (success) {
         navigate("/");

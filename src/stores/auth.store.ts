@@ -71,6 +71,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   googleLogin: async (token: string) => {
     try {
+      console.log("Google Login Token:", token);
       const res = await axiosInstance.post(AUTH_BASE_URL + "google", {
         token,
         role: SERVICE_PROVIDER,

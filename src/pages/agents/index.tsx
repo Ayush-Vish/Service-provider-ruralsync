@@ -70,6 +70,7 @@ function getStatusColor(status: string) {
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Copy } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 function InviteAgentDialog({ open, onOpenChange, onInvite }: { open: boolean; onOpenChange: (open: boolean) => void; onInvite: (email?: string) => Promise<string | null> }) {
   const [inviteLink, setInviteLink] = useState<string | null>(null);
@@ -81,6 +82,7 @@ function InviteAgentDialog({ open, onOpenChange, onInvite }: { open: boolean; on
     const link = await onInvite(email || undefined);
     if (link) {
       setInviteLink(link);
+      toast.success('Invite link generated!');
     }
     setLoading(false);
   };
@@ -88,7 +90,7 @@ function InviteAgentDialog({ open, onOpenChange, onInvite }: { open: boolean; on
   const copyToClipboard = () => {
     if (inviteLink) {
       navigator.clipboard.writeText(inviteLink);
-      // toast.success("Copied!"); // Assuming toast is available or handle it
+      toast.success("Link copied to clipboard!");
     }
   };
 
@@ -461,6 +463,13 @@ export default function AgentsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Invite Agent Dialog */}
+      <InviteAgentDialog 
+        open={showInvite} 
+        onOpenChange={setShowInvite} 
+        onInvite={handleInviteAgent} 
+      />
     </div>
   );
 }
