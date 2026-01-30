@@ -14,6 +14,16 @@ vi.mock('@/stores/auth.store', () => ({
     useAuthStore: vi.fn(),
 }));
 
+// Mock navigate
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => {
+    const actual = await vi.importActual('react-router-dom');
+    return {
+        ...actual,
+        useNavigate: () => mockNavigate,
+    };
+});
+
 // Mock sidebar components because they might rely on context
 vi.mock('@/components/ui/sidebar', () => {
     const FakeSidebar = ({ children }: any) => <div>{children}</div>;
@@ -32,21 +42,11 @@ vi.mock('@/components/ui/sidebar', () => {
 
 describe('SidebarMenuComponent', () => {
     const mockLogout = vi.fn();
-    const mockNavigate = vi.fn();
 
     beforeEach(() => {
         vi.clearAllMocks();
         (useAuthStore as any).mockImplementation((selector: any) => selector({ logout: mockLogout }));
         (useOrgStore as any).mockImplementation((selector: any) => selector({ orgDetails: { name: 'Test Org' } }));
-
-        // Mock navigate
-        vi.mock('react-router-dom', async () => {
-            const actual = await vi.importActual('react-router-dom');
-            return {
-                ...actual,
-                useNavigate: () => mockNavigate,
-            }
-        });
     });
 
     const renderComponent = (onSectionChange = vi.fn()) => {

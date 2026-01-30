@@ -13,7 +13,7 @@ export default function Services() {
   const [isAddingService, setIsAddingService] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const {location,  error } = useLocation();
+  const { location, error } = useLocation();
   const [imageFiles, setImageFiles] = useState<File[]>([]); // New state for images
 
   const [newService, setNewService] = useState<ServiceFormData>({
@@ -30,7 +30,11 @@ export default function Services() {
     location: { coordinates: [0, 0] },
     address: { street: "", city: "", state: "", zipCode: "", country: "" },
     tags: [],
-    images:[]
+    images: [],
+    features: [],
+    faqs: [],
+    pricingTiers: [],
+    requirements: [],
   });
 
   const handleInputChange = (
@@ -137,16 +141,16 @@ export default function Services() {
   const handleAddService = async (e: React.FormEvent) => {
     e.preventDefault();
     const formdata = new FormData();
-    formdata.append("name" , newService.name);
-    formdata.append("description" , newService.description);
-    formdata.append("basePrice" , newService.basePrice.toString());
-    formdata.append("estimatedDuration" , newService.estimatedDuration);
-    formdata.append("category" , newService.category);
-    formdata.append("availability" , JSON.stringify(newService.availability));
-    formdata.append("additionalTasks" , JSON.stringify(newService.additionalTasks));
-    formdata.append("location" , JSON.stringify(newService.location));
-    formdata.append("address" , JSON.stringify(newService.address));
-    formdata.append("tags" , JSON.stringify(newService.tags));
+    formdata.append("name", newService.name);
+    formdata.append("description", newService.description);
+    formdata.append("basePrice", newService.basePrice.toString());
+    formdata.append("estimatedDuration", newService.estimatedDuration);
+    formdata.append("category", newService.category);
+    formdata.append("availability", JSON.stringify(newService.availability));
+    formdata.append("additionalTasks", JSON.stringify(newService.additionalTasks));
+    formdata.append("location", JSON.stringify(newService.location));
+    formdata.append("address", JSON.stringify(newService.address));
+    formdata.append("tags", JSON.stringify(newService.tags));
     imageFiles.forEach((file) => {
       formdata.append("images", file); // Key 'images' allows multiple files
     });

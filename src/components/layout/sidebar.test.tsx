@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter, useNavigate, useLocation } from 'react-router-dom';
 import { useOrgStore } from '@/stores/org.store';
 import { useAuthStore } from '@/stores/auth.store';
+import { SidebarProvider } from '@/components/ui/sidebar';
 
 // Mock stores
 vi.mock('@/stores/org.store', () => ({
@@ -40,7 +41,9 @@ describe('SidebarMenuComponent', () => {
     const renderSidebar = () => {
         return render(
             <MemoryRouter>
-                <SidebarMenuComponent />
+                <SidebarProvider>
+                    <SidebarMenuComponent />
+                </SidebarProvider>
             </MemoryRouter>
         );
     };

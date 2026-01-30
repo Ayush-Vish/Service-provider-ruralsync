@@ -6,11 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { Service, ServiceFormData, useServiceStore } from "@/stores/services.store";
 import ServiceForm from "@/components/service/service-form";
 import ServiceDetailsDialog from "@/components/service/service-modal";
-import { 
-  Plus, 
-  Search, 
-  Grid3X3, 
-  List, 
+import {
+  Plus,
+  Search,
+  Grid3X3,
+  List,
   MoreVertical,
   Edit,
   Trash2,
@@ -45,7 +45,7 @@ export default function ServicesPage() {
   const addService = useServiceStore((state) => state.addService);
   const deleteService = useServiceStore((state) => state.deleteService);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Get location from global store
   const { getCoordinates, getAddressObject, hasLocation } = useLocationStore();
 
@@ -56,7 +56,7 @@ export default function ServicesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
-  
+
   // Initialize service with location from store
   const coords = getCoordinates();
   const addressObj = getAddressObject();
@@ -75,7 +75,11 @@ export default function ServicesPage() {
     location: { coordinates: coords ? [coords.lng, coords.lat] : [0, 0] },
     address: addressObj,
     tags: [],
-    images: []
+    images: [],
+    features: [],
+    faqs: [],
+    pricingTiers: [],
+    requirements: [],
   });
 
   useEffect(() => {
@@ -86,7 +90,7 @@ export default function ServicesPage() {
     };
     fetchServices();
   }, [getServices]);
-  
+
   // Update service location when global location changes
   useEffect(() => {
     if (hasLocation()) {
@@ -213,7 +217,11 @@ export default function ServicesPage() {
       location: { coordinates: [0, 0] },
       address: { street: "", city: "", state: "", zipCode: "", country: "" },
       tags: [],
-      images: []
+      images: [],
+      features: [],
+      faqs: [],
+      pricingTiers: [],
+      requirements: [],
     });
     setImageFiles([]);
   };
@@ -315,8 +323,8 @@ export default function ServicesPage() {
 
       {/* Services Grid/List */}
       {isLoading ? (
-        <div className={viewMode === 'grid' 
-          ? "grid gap-4 sm:grid-cols-2 lg:grid-cols-3" 
+        <div className={viewMode === 'grid'
+          ? "grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
           : "space-y-3"
         }>
           {[...Array(6)].map((_, i) => (
@@ -340,8 +348,8 @@ export default function ServicesPage() {
             </div>
             <h3 className="font-semibold text-lg mb-1">No services found</h3>
             <p className="text-muted-foreground text-center max-w-sm">
-              {searchQuery 
-                ? "Try adjusting your search query" 
+              {searchQuery
+                ? "Try adjusting your search query"
                 : "Get started by adding your first service"}
             </p>
             {!searchQuery && (
@@ -358,8 +366,8 @@ export default function ServicesPage() {
             <Card key={service._id} className="group hover:shadow-md transition-all duration-300 overflow-hidden">
               {service.images && service.images[0] && (
                 <div className="h-40 overflow-hidden">
-                  <img 
-                    src={service.images[0]} 
+                  <img
+                    src={service.images[0]}
                     alt={service.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
@@ -391,7 +399,7 @@ export default function ServicesPage() {
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         className="text-destructive"
                         onClick={() => setDeleteConfirmId(service._id)}
                       >
@@ -429,8 +437,8 @@ export default function ServicesPage() {
               <CardContent className="p-4">
                 <div className="flex items-center gap-4">
                   {service.images && service.images[0] && (
-                    <img 
-                      src={service.images[0]} 
+                    <img
+                      src={service.images[0]}
                       alt={service.name}
                       className="w-16 h-16 rounded-lg object-cover"
                     />
@@ -471,7 +479,7 @@ export default function ServicesPage() {
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           className="text-destructive"
                           onClick={() => setDeleteConfirmId(service._id)}
                         >
@@ -508,7 +516,7 @@ export default function ServicesPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleDeleteService}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
