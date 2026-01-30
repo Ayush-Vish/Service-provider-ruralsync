@@ -13,22 +13,22 @@ type ImageUploadProps = {
   accept?: string;
 };
 
-const ImageUpload = ({ 
-  label, 
-  multiple = false, 
-  onChange, 
+const ImageUpload = ({
+  label,
+  multiple = false,
+  onChange,
   value = [],
-  accept = "image/*" 
+  accept = "image/*"
 }: ImageUploadProps) => {
   const [previews, setPreviews] = useState<string[]>([]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    
+
     // Create preview URLs
     const newPreviews = files.map(file => URL.createObjectURL(file));
     setPreviews(prev => [...prev, ...newPreviews]);
-    
+
     // Call parent onChange
     onChange(multiple ? [...value, ...files] : files);
   };
@@ -47,7 +47,7 @@ const ImageUpload = ({
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label>{label}</Label>
+        <Label htmlFor={`file-upload-${label}`}>{label}</Label>
         <div className="flex items-center gap-4">
           <Input
             type="file"
@@ -57,8 +57,8 @@ const ImageUpload = ({
             className="hidden"
             id={`file-upload-${label}`}
           />
-          <Button 
-            type="button" 
+          <Button
+            type="button"
             variant="outline"
             className="w-full"
             onClick={() => document.getElementById(`file-upload-${label}`)?.click()}
