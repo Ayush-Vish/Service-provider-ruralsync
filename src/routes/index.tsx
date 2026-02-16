@@ -13,6 +13,7 @@ import BookingsPage from '@/pages/bookings';
 import AuditLogsPage from '@/pages/audit-logs';
 import OrganizationPage from '@/pages/organization';
 import NotFoundPage from '@/pages/not-found';
+import LiveTrackingPage from '@/pages/tracking';
 
 export const router = createBrowserRouter([
   {
@@ -42,6 +43,10 @@ export const router = createBrowserRouter([
       {
         path: 'bookings',
         element: <BookingsPage />,
+      },
+      {
+        path: 'tracking/:bookingId',
+        element: <LiveTrackingPage />,
       },
       {
         path: 'audit-logs',

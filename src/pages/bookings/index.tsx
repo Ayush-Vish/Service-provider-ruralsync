@@ -26,11 +26,14 @@ import {
   Clock,
   Filter,
   MoreVertical,
-  MapPin
+  MapPin,
+  Navigation,
+  Users
 } from 'lucide-react';
 import { Booking, useBookingStore } from '@/stores/booking.store';
 import AgentAssignmentModal from '@/components/booking/assign-agent';
 import BookingDetailsModal from '@/components/booking/booking-detail';
+import { useNavigate } from 'react-router-dom';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -56,9 +59,11 @@ function getStatusColor(status: string) {
 }
 
 export default function BookingsPage() {
+  const navigate = useNavigate();
   const bookings = useBookingStore(state => state.bookings);
   const getBookings = useBookingStore(state => state.getAllBookings);
   const assignBooking = useBookingStore(state => state.assignBooking);
+  const removeAgentFromBooking = useBookingStore(state => state.removeAgentFromBooking);
   
   const [filter, setFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -94,10 +99,16 @@ export default function BookingsPage() {
     setIsDetailsModalOpen(true);
   };
 
-  const assignAgent = (bookingId: string, agentId: string) => {
-    assignBooking({ bookingId, agentId });
+  const assignAgent = (bookingId: string, agentId: string, role?: string) => {
+    assignBooking({ bookingId, agentId, role });
     setIsAgentModalOpen(false);
   };
+
+  const handleRemoveAgent = (bookingId: string, agentId: string) => {
+    removeAgentFromBooking(bookingId, agentId);
+  };
+
+  const selectedBooking = bookings?.find(b => b._id === selectedBookingId);
 
   const stats = {
     total: bookings?.length || 0,
@@ -235,7 +246,7 @@ export default function BookingsPage() {
                   <TableHead>Customer</TableHead>
                   <TableHead>Service</TableHead>
                   <TableHead>Date & Time</TableHead>
-                  <TableHead>Location</TableHead>
+                  <TableHead>Agents</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="w-[100px]">Actions</TableHead>
                 </TableRow>
@@ -271,15 +282,30 @@ export default function BookingsPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      {booking?.location ? (
-                        <div className="flex items-center gap-2 text-sm">
-                          <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                          <span className="truncate max-w-[150px]">
-                            {booking.location.coordinates?.join(', ') || '-'}
-                          </span>
+                      {booking?.assignedAgents && booking.assignedAgents.length > 0 ? (
+                        <div className="flex items-center gap-1.5">
+                          <div className="flex -space-x-2">
+                            {booking.assignedAgents.slice(0, 3).map((aa, idx) => (
+                              <div
+                                key={idx}
+                                className="h-7 w-7 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center text-xs font-medium text-primary"
+                                title={aa.agent?.name}
+                              >
+                                {aa.agent?.name?.charAt(0).toUpperCase() || '?'}
+                              </div>
+                            ))}
+                            {booking.assignedAgents.length > 3 && (
+                              <div className="h-7 w-7 rounded-full bg-muted border-2 border-background flex items-center justify-center text-xs font-medium text-muted-foreground">
+                                +{booking.assignedAgents.length - 3}
+                              </div>
+                            )}
+                          </div>
+                          <Badge variant="outline" className="text-xs">
+                            {booking.assignedAgents.length} assigned
+                          </Badge>
                         </div>
                       ) : (
-                        <span className="text-muted-foreground">-</span>
+                        <span className="text-sm text-muted-foreground italic">None</span>
                       )}
                     </TableCell>
                     <TableCell>
@@ -301,8 +327,14 @@ export default function BookingsPage() {
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleAssignAgent(booking?._id)}>
                             <UserPlus className="h-4 w-4 mr-2" />
-                            Assign Agent
+                            Assign Agents
                           </DropdownMenuItem>
+                          {booking?.liveTrackingEnabled && booking?.assignedAgents && booking.assignedAgents.length > 0 && (
+                            <DropdownMenuItem onClick={() => navigate(`/tracking/${booking._id}`)}>
+                              <Navigation className="h-4 w-4 mr-2" />
+                              Live Tracking
+                            </DropdownMenuItem>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -322,6 +354,11 @@ export default function BookingsPage() {
             isOpen={isAgentModalOpen}
             setIsOpen={setIsAgentModalOpen}
             assignAgent={assignAgent}
+            currentAgents={selectedBooking?.assignedAgents?.map(a => ({
+              agent: a.agent,
+              role: a.role
+            })) || []}
+            onRemoveAgent={handleRemoveAgent}
           />
           <BookingDetailsModal
             bookingId={selectedBookingId}
