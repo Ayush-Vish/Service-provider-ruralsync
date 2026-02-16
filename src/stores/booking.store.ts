@@ -36,13 +36,19 @@ export interface Booking {
   paymentStatus: string;
   extraTasks: ExtraTask[];
   location: Location;
+  assignedAgent?: {
+    _id: string;
+    name: string;
+    phoneNumber?: string;
+    email?: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
 
 type BookingData = {
-  bookingId:string;
-  agentId:string;
+  bookingId: string;
+  agentId: string;
 }
 interface BookingState {
   bookings: Booking[];
@@ -72,7 +78,7 @@ export const useBookingStore = create<BookingState>((set) => ({
   },
   assignBooking: async (bookingdata) => {
     try {
-       await axiosInstance.post(SHOPKEEPER_BASE_URL + "assign-booking", bookingdata);
+      await axiosInstance.post(SHOPKEEPER_BASE_URL + "assign-booking", bookingdata);
       // const data = await res.data;
       toast.success("Booking assigned successfully");
     } catch (error) {

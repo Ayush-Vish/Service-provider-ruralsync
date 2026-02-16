@@ -72,40 +72,77 @@ export default function Bookings() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Booking ID</TableHead>
               <TableHead>Customer Name</TableHead>
               <TableHead>Service</TableHead>
-              <TableHead>Date</TableHead>
+              <TableHead>Date & Time</TableHead>
+              <TableHead>Assigned Agent</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredBookings?.map(booking => (
-              <TableRow key={booking?._id}>
-                <TableCell>{booking?.client?.name}</TableCell>
-                <TableCell>{booking?.service?.name}</TableCell>
-                <TableCell>{booking?.bookingDate} {booking?.bookingTime}</TableCell>
-                <TableCell>{booking?.status}</TableCell>
-                <TableCell>
-                  <Button variant="outline" size="sm" className="mr-2" onClick={() => handleAssignAgent(booking?._id)}>
-                    <UserPlus className="w-4 h-4 mr-1" />
-                    Assign Agent
-                  </Button>
-                  <Button variant="outline" size="sm" className="mr-2" onClick={() => handleViewDetails(booking?._id)}>
-                    <Eye className="w-4 h-4 mr-1" />
-                    View
-                  </Button>
-                  <Button variant="outline" size="sm" className="mr-2">
-                    <Edit className="w-4 h-4 mr-1" />
-                    Edit
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => handleDeleteBooking(booking?._id)}>
-                    <Trash2 className="w-4 h-4 mr-1" />
-                    Delete
-                  </Button>
+            {filteredBookings && filteredBookings.length > 0 ? (
+              filteredBookings.map(booking => (
+                <TableRow key={booking?._id}>
+                  <TableCell className="font-mono text-xs">
+                    {booking?._id?.slice(-8)}
+                  </TableCell>
+                  <TableCell>{booking?.client?.name || 'N/A'}</TableCell>
+                  <TableCell>{booking?.service?.name || 'N/A'}</TableCell>
+                  <TableCell>
+                    <div className="space-y-1">
+                      <div>{booking?.bookingDate}</div>
+                      <div className="text-xs text-muted-foreground">{booking?.bookingTime}</div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {booking?.assignedAgent ? (
+                      <div className="space-y-1">
+                        <div className="font-medium">{booking.assignedAgent.name}</div>
+                        {booking.assignedAgent.phoneNumber && (
+                          <div className="text-xs text-muted-foreground">{booking.assignedAgent.phoneNumber}</div>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">Not assigned</span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${booking?.status === 'Completed' ? 'bg-green-100 text-green-800' :
+                        booking?.status === 'In Progress' ? 'bg-blue-100 text-blue-800' :
+                          booking?.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-gray-100 text-gray-800'
+                      }`}>
+                      {booking?.status}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleAssignAgent(booking?._id)}
+                        disabled={!!booking?.assignedAgent}
+                        title={booking?.assignedAgent ? 'Agent already assigned' : 'Assign agent'}
+                      >
+                        <UserPlus className="w-4 h-4 mr-1" />
+                        {booking?.assignedAgent ? 'Reassign' : 'Assign'}
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => handleViewDetails(booking?._id)}>
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  No bookings found
                 </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </CardContent>

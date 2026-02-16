@@ -95,9 +95,26 @@ export const useAgentStore = create<AgentState>((set) => ({
       const res = await axiosInstance.post(AUTH_BASE_URL + "invite", { email });
       if (res.status !== 201) {
         toast.error("Failed to generate invite");
-        return null; // Return null instead of void
+        return null;
       }
-      return res.data.data.token;
+
+      const token = res.data.data.token;
+
+      // Auto-detect environment for agent app URL
+      let agentAppUrl = import.meta.env.VITE_AGENT_APP_URL;
+
+      if (!agentAppUrl) {
+        // Fallback: detect based on current hostname
+        const isLocal = window.location.hostname === 'localhost' ||
+          window.location.hostname === '127.0.0.1';
+        agentAppUrl = isLocal
+          ? 'http://localhost:5002'
+          : `${window.location.protocol}//${window.location.hostname.replace('provider', 'agent')}`;
+      }
+
+      const fullInviteUrl = `${agentAppUrl}/register?token=${token}`;
+      toast.success("Invite link generated!");
+      return fullInviteUrl;
     } catch (error) {
       toast.error("Failed to generate invite");
       console.error(error);

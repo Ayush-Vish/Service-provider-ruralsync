@@ -186,12 +186,9 @@ export default function AgentsPage() {
   };
 
   const handleInviteAgent = async (email?: string) => {
-    const token = await generateInvite(email);
-    if (token) {
-      // Construct full URL
-      return `${import.meta.env.VITE_AGENT_APP_URL || 'http://localhost:5002'}/register?token=${token}`;
-    }
-    return null;
+    // generateInvite now returns the full URL
+    const inviteLink = await generateInvite(email);
+    return inviteLink;
   }
   // ... stats logic ...
   const stats = {
@@ -465,10 +462,10 @@ export default function AgentsPage() {
       </AlertDialog>
 
       {/* Invite Agent Dialog */}
-      <InviteAgentDialog 
-        open={showInvite} 
-        onOpenChange={setShowInvite} 
-        onInvite={handleInviteAgent} 
+      <InviteAgentDialog
+        open={showInvite}
+        onOpenChange={setShowInvite}
+        onInvite={handleInviteAgent}
       />
     </div>
   );
