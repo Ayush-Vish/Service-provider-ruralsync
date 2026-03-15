@@ -47,14 +47,21 @@ interface AgentLocationData {
 }
 
 interface AgentWithLocation {
-  agent: {
+  // Flat fields (returned directly by the API tracking endpoint)
+  _id: string;
+  name: string;
+  phoneNumber?: string;
+  profileImage?: string;
+  status?: string;
+  // Nested agent object (populated variant)
+  agent?: {
     _id: string;
     name: string;
     phoneNumber?: string;
     profileImage?: string;
     status: string;
   };
-  assignedAt: string;
+  assignedAt?: string;
   role: string;
   location: AgentLocationData | null;
 }
