@@ -99,20 +99,19 @@ export const useAgentStore = create<AgentState>((set) => ({
       }
 
       const token = res.data.data.token;
+      const backendLink = res.data.data.link as string | undefined;
+      const canonicalBaseUrl =
+        window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+          ? "http://localhost:5173"
+          : "https://agent-rural-sync.vercel.app";
 
-      // Auto-detect environment for agent app URL
-      let agentAppUrl = import.meta.env.VITE_AGENT_APP_URL;
+      const normalizedBackendLink = backendLink
+        ?.replace("https://ruralsync-service-agent.vercel.app", "https://agent-rural-sync.vercel.app")
+        ?.replace("http://ruralsync-service-agent.vercel.app", "https://agent-rural-sync.vercel.app");
 
-      if (!agentAppUrl) {
-        // Fallback: detect based on current hostname
-        const isLocal = window.location.hostname === 'localhost' ||
-          window.location.hostname === '127.0.0.1';
-        agentAppUrl = isLocal
-          ? 'http://localhost:5002'
-          : `${window.location.protocol}//${window.location.hostname.replace('provider', 'agent')}`;
-      }
-
-      const fullInviteUrl = `${agentAppUrl}/register?token=${token}`;
+      const fullInviteUrl =
+        normalizedBackendLink ||
+        `${canonicalBaseUrl}/register?token=${token}`;
       toast.success("Invite link generated!");
       return fullInviteUrl;
     } catch (error) {

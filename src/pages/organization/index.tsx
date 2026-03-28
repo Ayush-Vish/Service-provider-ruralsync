@@ -260,6 +260,27 @@ export default function OrganizationPage() {
 
       {/* Business Hours & Categories */}
       <div className="grid gap-6 md:grid-cols-2">
+        {orgData.location?.coordinates?.length === 2 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                Location Coordinates
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex justify-between items-center py-1.5 border-b">
+                <span className="font-medium">Latitude</span>
+                <span className="font-mono text-sm">{orgData.location.coordinates[1].toFixed(6)}</span>
+              </div>
+              <div className="flex justify-between items-center py-1.5">
+                <span className="font-medium">Longitude</span>
+                <span className="font-mono text-sm">{orgData.location.coordinates[0].toFixed(6)}</span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Business Hours */}
         {orgData.businessHours && Object.keys(orgData.businessHours).length > 0 && (
           <Card>

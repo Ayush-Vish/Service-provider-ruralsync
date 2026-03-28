@@ -116,12 +116,12 @@ export const useOrgStore = create<OrgState>((set) => ({
 
   registerOrg: async (orgData) => {
     try {
-      const res = await axiosInstance.post<OrganizationAPI>(
+      const res = await axiosInstance.post<{ data: OrganizationAPI }>(
         `${SHOPKEEPER_BASE_URL}register-org`,
         orgData
       );
 
-      set({ orgDetails: res.data });
+      set({ orgDetails: res.data.data });
       toast.success("Organization registered successfully");
       return true;
     } catch (error) {
