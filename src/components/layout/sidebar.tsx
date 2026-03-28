@@ -21,7 +21,7 @@ import {
   LayoutDashboard, 
   FileText, 
   LogOut,
-  Settings,
+  CreditCard,
   ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -72,6 +72,11 @@ const menuItems = [
         label: "Audit Logs",
         icon: FileText,
         path: "/audit-logs",
+      },
+      {
+        label: "Billing",
+        icon: CreditCard,
+        path: "/billing",
       },
     ],
   },

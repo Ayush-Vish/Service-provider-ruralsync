@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Badge } from "@/components/ui/badge";
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '@/stores/auth.store';
 import { Loader2, Mail, Lock, User, ArrowRight } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -21,8 +22,12 @@ export default function LoginPage() {
   const googleLoginAction = useAuthStore((state) => state.googleLogin);
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const selectedPlan = (searchParams.get("plan") || "").toUpperCase();
 
-  const from = location.state?.from?.pathname || '/dashboard';
+  const from = selectedPlan
+    ? `/billing?plan=${selectedPlan}`
+    : location.state?.from?.pathname || '/dashboard';
 
   const googleLogin_ = useGoogleLogin({
     
@@ -78,6 +83,11 @@ export default function LoginPage() {
         <p className="text-muted-foreground">
           Enter your credentials to access your dashboard
         </p>
+        {selectedPlan && (
+          <div className="pt-2">
+            <Badge variant="outline">Selected plan: {selectedPlan}</Badge>
+          </div>
+        )}
       </div>
 
       <Card className="border-0 shadow-lg">
@@ -218,7 +228,7 @@ export default function LoginPage() {
 
       <p className="text-center text-sm text-muted-foreground">
         Don't have an account?{' '}
-        <Link to="/auth/register" className="font-medium text-primary hover:underline">
+        <Link to={`/auth/register${selectedPlan ? `?plan=${selectedPlan}` : ""}`} className="font-medium text-primary hover:underline">
           Create an account
         </Link>
       </p>

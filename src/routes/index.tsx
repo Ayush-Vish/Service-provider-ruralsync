@@ -14,6 +14,7 @@ import AuditLogsPage from '@/pages/audit-logs';
 import OrganizationPage from '@/pages/organization';
 import NotFoundPage from '@/pages/not-found';
 import LiveTrackingPage from '@/pages/tracking';
+import BillingPage from '@/pages/billing';
 
 export const router = createBrowserRouter([
   {
@@ -55,6 +56,10 @@ export const router = createBrowserRouter([
       {
         path: 'organization',
         element: <OrganizationPage />,
+      },
+      {
+        path: 'billing',
+        element: <BillingPage />,
       },
     ],
   },
