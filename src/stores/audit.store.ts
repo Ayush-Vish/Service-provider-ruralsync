@@ -24,6 +24,7 @@ const useAuditStore = create<AuditState>((set) => ({
       const response = await axiosInstance.get( AUDIT_LOGS_BASE_URL);
       set({ logs: response.data.data, loading: false });
     } catch (error) {
+      set({ loading: false, error });
       toast.error('Failed to fetch audit logs');
       console.log(error)
     }

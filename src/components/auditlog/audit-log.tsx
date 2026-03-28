@@ -35,7 +35,7 @@ import { Card } from "@/components/ui/card"; // Adjusted import path for Card co
 interface IAuditLog {
   _id: string;
   userId: string;
-  role: "CLIENT" | "AGENT";
+  role: "CLIENT" | "AGENT" | "SERVICE_PROVIDER";
   action: string;
   targetId?: string;
   timestamp: Date;
@@ -53,7 +53,7 @@ export default function AuditLogPage() {
   const [sortKey, setSortKey] = useState<SortKey>("timestamp");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [filterValue, setFilterValue] = useState("");
-  const [roleFilter, setRoleFilter] = useState<"ALL" | "CLIENT" | "AGENT">(
+  const [roleFilter, setRoleFilter] = useState<"ALL" | "CLIENT" | "AGENT" | "SERVICE_PROVIDER">(
     "ALL"
   );
   const [currentPage, setCurrentPage] = useState(1);
@@ -87,7 +87,7 @@ export default function AuditLogPage() {
     setCurrentPage(1);
   };
 
-  const handleRoleFilter = (value: "ALL" | "CLIENT" | "AGENT") => {
+  const handleRoleFilter = (value: "ALL" | "CLIENT" | "AGENT" | "SERVICE_PROVIDER") => {
     setRoleFilter(value);
     setCurrentPage(1);
   };
@@ -141,6 +141,7 @@ export default function AuditLogPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">All Roles</SelectItem>
+              <SelectItem value="SERVICE_PROVIDER">Provider</SelectItem>
               <SelectItem value="CLIENT">Client</SelectItem>
               <SelectItem value="AGENT">Agent</SelectItem>
             </SelectContent>
@@ -246,12 +247,7 @@ export default function AuditLogPage() {
                 )}
                 {visibleColumns.metadata && (
                   <TableHead>
-                    <Button
-                      variant="ghost"
-                      onClick={() => handleSort("metadata")}
-                    >
-                      Metadata
-                    </Button>
+                    Metadata
                   </TableHead>
                 )}
               </TableRow>
@@ -267,14 +263,16 @@ export default function AuditLogPage() {
                     <TableCell>{log.targetId}</TableCell>
                   )}
                   {visibleColumns.timestamp && (
-                    <TableCell>{log.timestamp.toLocaleString()}</TableCell>
+                    <TableCell>{new Date(log.timestamp).toLocaleString()}</TableCell>
                   )}
                   {visibleColumns.serviceProviderId && (
                     <TableCell>{log.serviceProviderId}</TableCell>
                   )}
                   {visibleColumns.role && <TableCell>{log.role}</TableCell>}
                   {visibleColumns.metadata && (
-                    <TableCell>{JSON.stringify(log.metadata)}</TableCell>
+                    <TableCell className="max-w-[320px] whitespace-pre-wrap break-words text-xs text-muted-foreground">
+                      {log.metadata ? JSON.stringify(log.metadata, null, 2) : "NA"}
+                    </TableCell>
                   )}
                 </TableRow>
               ))}
